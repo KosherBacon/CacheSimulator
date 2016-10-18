@@ -12,9 +12,9 @@ struct Simulator {
     // Data structure C.
     size_t data_c_rows, data_c_cols;
     // Loop maximums.
-    size_t i_max, i_jump;
-    size_t j_max, j_jump;
-    size_t k_max, k_jump;
+    int i_max, i_jump;
+    int j_max, j_jump;
+    int k_max, k_jump;
     // Data base addresses.
     uint32_t a_base_addr;
     uint32_t b_base_addr;

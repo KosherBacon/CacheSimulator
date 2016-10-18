@@ -5,11 +5,59 @@
 
 // Method implementations.
 
-void cache_insert(Cache* cache, size_t set, uint32_t tag)
+// Returns the line in the set.
+int cache_insert(Cache* cache, size_t set, uint32_t tag)
 {
-    // Assuming direct-mapped cache for now.
-    // TODO - Implement LRU and LFU.
-    (cache->sets[set]).lines[0].valid = true;
-    (cache->sets[set]).lines[0].tag = tag;
+    int i, lines_per_set, line;
+    PolicyCount p_count;
+    std::deque<PolicyCount>* policy_deque;
+    lines_per_set = cache->lines_per_set;
+    switch (cache->policy)
+    {
+        case DIRECT_MAP:
+            (cache->sets[set]).lines[0].valid = true;
+            (cache->sets[set]).lines[0].tag = tag;
+            return 0;
+        case LRU:
+            // Check if LRU list for the set is full or not.
+            if (cache->sets[set].line_order->size() != lines_per_set)
+            {
+                // Fill first empty line.
+                for (i = 0; i < lines_per_set; i++)
+                {
+                    if (!cache->sets[set].lines[i].valid)
+                    {
+                        (cache->sets[set]).lines[i].valid = true;
+                        (cache->sets[set]).lines[i].tag = tag;
+                        p_count.line = i;
+                        cache->sets[set].line_order->push_front(p_count);
+                        return i;
+                    }
+                }
+            }
+            else
+            {
+                policy_deque = cache->sets[set].line_order;
+                // Move front element to back.
+                std::rotate(policy_deque->begin(),
+                        policy_deque->begin() + 1,
+                        policy_deque->end());
+                line = policy_deque->front().line;
+                cache->sets[set].lines[line].tag = tag; // Line must also be valid in this case.
+                return line;
+            }
+            return -1; // We should never get to this line.
+        case LFU:
+            // TODO - Implement.
+            return -1;
+        default:
+            // TODO - Fire warning message.
+            return -1;
+    }
+
+
+
+    //(cache->sets[set]).lines[0].valid = true;
+    //(cache->sets[set]).lines[0].tag = tag;
 }
 
