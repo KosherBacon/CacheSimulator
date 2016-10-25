@@ -50,6 +50,7 @@ void run_simulator(Simulator* sim)
     std::stringstream output_stream;
     register int i, j, k;
     int dest_line;
+    bool inserted;
     uint32_t a_addr, b_addr, c_addr;
     uint32_t set_a, set_b, set_c;
     uint32_t tag_a, tag_b, tag_c;
@@ -59,6 +60,7 @@ void run_simulator(Simulator* sim)
         {
             for (k = 0; k < sim->k_max; k+=sim->k_jump)
             {
+                inserted = false;
                 a_addr = sim->a_base_addr
                     + (i * sim->data_a_cols * sim->elem_size)
                     + (k * sim->elem_size);
@@ -68,6 +70,7 @@ void run_simulator(Simulator* sim)
                 {
                     dest_line = cache_insert(&sim->cache, set_a, tag_a);
                     output_stream << set_a << "," << dest_line << "," << tag_a << "," << "r" << "\n";
+                    inserted = true;
                 }
                 b_addr = sim->b_base_addr
                     + (k * sim->data_b_cols * sim->elem_size)
@@ -78,6 +81,7 @@ void run_simulator(Simulator* sim)
                 {
                     dest_line = cache_insert(&sim->cache, set_b, tag_b);
                     output_stream << set_b << "," << dest_line << "," << tag_b << "," << "g" << "\n";
+                    inserted = true;
                 }
                 c_addr = sim->c_base_addr
                     + (i * sim->data_c_cols * sim->elem_size)
@@ -88,6 +92,11 @@ void run_simulator(Simulator* sim)
                 {
                     dest_line = cache_insert(&sim->cache, set_c, tag_c);
                     output_stream << set_c << "," << dest_line << "," << tag_c << "," << "b" << "\n";
+                    inserted = true;
+                }
+                if (inserted)
+                {
+                    output_stream << "\n";
                 }
             }
         }

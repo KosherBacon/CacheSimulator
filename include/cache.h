@@ -32,6 +32,11 @@ struct Cache {
 struct PolicyCount {
     int line;
     int value;
+
+    bool operator < (const PolicyCount& p) const
+    {
+        return value < p.value;
+    }
 };
 
 struct Set {
