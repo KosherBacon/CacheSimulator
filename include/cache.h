@@ -13,7 +13,8 @@ typedef struct Line Line;
 typedef enum EvictionPolicy {
     DIRECT_MAP,
     LRU,
-    LFU
+    LFU,
+    RANDOM
 } EvictionPolicy;
 
 int cache_insert(Cache *cache, size_t set, uint32_t tag);

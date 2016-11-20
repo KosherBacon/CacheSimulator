@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -8,6 +9,8 @@
 #include <string.h>
 
 #include "../include/simulator.h"
+
+using namespace std;
 
 // Static methods (private except for this file).
 
@@ -35,15 +38,15 @@ static inline uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bi
     return ((addr << tag_bits) >> tag_bits) >> b_bits;
 }
 
-static inline uint32_t tag_from_addr(uint32_t addr, size_t tag_bits)
+static inline uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag_bits)
 {
     // Keeps tag_bits number of bits in the lower bits of a uint32_t.
-    return addr >> (sizeof(uint32_t) - tag_bits);
+    return addr >> (elem_size - tag_bits);
 }
 
 // Method implementations for simulator.h.
 
-void run_simulator(Simulator* sim)
+std::string run_simulator(Simulator* sim)
 {
     // TODO - Avoid assumption of standard matrix matrix multiply.
     // C[i][k] += A[i][k] * B[k][j]
@@ -64,7 +67,7 @@ void run_simulator(Simulator* sim)
                 a_addr = sim->a_base_addr
                     + (i * sim->data_a_cols * sim->elem_size)
                     + (k * sim->elem_size);
-                tag_a = tag_from_addr(a_addr, sim->cache.tag_bits);
+                tag_a = tag_from_addr(sim->elem_size, a_addr, sim->cache.tag_bits);
                 set_a = set_from_addr(a_addr, sim->cache.b_bits, sim->cache.tag_bits);
                 if (!cache_contains(&sim->cache, tag_a, set_a))
                 {
@@ -75,7 +78,7 @@ void run_simulator(Simulator* sim)
                 b_addr = sim->b_base_addr
                     + (k * sim->data_b_cols * sim->elem_size)
                     + (j * sim->elem_size);
-                tag_b = tag_from_addr(b_addr, sim->cache.tag_bits);
+                tag_b = tag_from_addr(sim->elem_size, b_addr, sim->cache.tag_bits);
                 set_b = set_from_addr(b_addr, sim->cache.b_bits, sim->cache.tag_bits);
                 if (!cache_contains(&sim->cache, tag_b, set_b))
                 {
@@ -86,7 +89,7 @@ void run_simulator(Simulator* sim)
                 c_addr = sim->c_base_addr
                     + (i * sim->data_c_cols * sim->elem_size)
                     + (k * sim->elem_size);
-                tag_c = tag_from_addr(c_addr, sim->cache.tag_bits);
+                tag_c = tag_from_addr(sim->elem_size, c_addr, sim->cache.tag_bits);
                 set_c = set_from_addr(c_addr, sim->cache.b_bits, sim->cache.tag_bits);
                 if (!cache_contains(&sim->cache, tag_c, set_c))
                 {
@@ -101,6 +104,6 @@ void run_simulator(Simulator* sim)
             }
         }
     }
-    std::cout << output_stream.str().size() << std::endl;
+    return output_stream.str();
 }
 
