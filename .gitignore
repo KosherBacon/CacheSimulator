@@ -1,3 +1,6 @@
+# Doxygen
+docs/
+
 # Object files
 *.o
 *.ko
