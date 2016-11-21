@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
             "      ],\n"
             "      \"loops\": [\n"
             "            { \"idx\": \"i\", \"step\": 1, \"limit\": 6 },\n"
-            "            { \"idk\": \"j\", \"step\": 2, \"limit\": 4 }\n"
+            "            { \"idx\": \"j\", \"step\": 2, \"limit\": 4 }\n"
             "      ],\n"
             "      \"computation\": \"A[j] = A[j] + B[j]\"\n"
             "}"
