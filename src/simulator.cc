@@ -46,6 +46,37 @@ static inline uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag
 
 // Method implementations for simulator.h.
 
+void allocate_simulator_data(Simulator* sim)
+{
+    uint32_t i, j;
+    // Allocate space for cache sets.
+    sim->cache.sets = (Set*) malloc(sim->cache.num_sets * sizeof(Set));
+    // Initialize each cache set with appropriate number of cache lines.
+    for (i = 0; i < sim->cache.num_sets; i++)
+    {
+        sim->cache.sets[i].lines = (Line*) malloc(sim->cache.lines_per_set * sizeof(Line));
+        sim->cache.sets[i].line_order = new std::deque<PolicyCount>();
+        // Initialize each cache line.
+        for (j = 0; j < sim->cache.lines_per_set; j++)
+        {
+            sim->cache.sets[i].lines[j].valid = false;
+            sim->cache.sets[i].lines[j].tag = 0;
+        }
+    }
+}
+
+void destroy_simulator(Simulator* sim)
+{
+    uint32_t i;
+    for (i = 0; i < sim->cache.num_sets; i++)
+    {
+        delete sim->cache.sets[i].line_order;
+        free(sim->cache.sets[i].lines);
+    }
+    free(sim->cache.sets);
+    free(sim);
+}
+
 std::string run_simulator(Simulator* sim)
 {
     // TODO - Avoid assumption of standard matrix matrix multiply.

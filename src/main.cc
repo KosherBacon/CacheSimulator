@@ -14,6 +14,7 @@ using namespace std;
 // Method prototyes.
 
 Simulator* parse_input(const char* input);
+Simulator* prepare_input(const char* input);
 void simulate();
 
 // Implementations.
@@ -115,6 +116,14 @@ Simulator* parse_input(const char* input)
     return sim;
 }
 
+Simulator* prepare_input(const char* input)
+{
+    Simulator* sim;
+    sim = parse_input(input);
+    allocate_simulator_data(sim);
+    return sim;
+}
+
 void simulate()
 {
     uint32_t i, j;
@@ -163,7 +172,7 @@ void simulate()
 int main(int argc, char* argv[])
 {
     Simulator *sim;
-    sim = parse_input(
+    sim = prepare_input(
             "{\n"
             "      \"S\": 8,\n"
             "      \"b\": 3,\n"
@@ -183,7 +192,7 @@ int main(int argc, char* argv[])
             "}"
             );
     //simulate();
-    free(sim);
+    destroy_simulator(sim);
     return EXIT_SUCCESS;
 }
 

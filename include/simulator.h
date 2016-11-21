@@ -36,5 +36,7 @@ struct Simulator {
     Cache cache; /**< Holds the actual cache data. */
 };
 
+void allocate_simulator_data(Simulator* sim);
+void destroy_simulator(Simulator* sim);
 std::string run_simulator(Simulator* sim);
 
