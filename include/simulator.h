@@ -1,8 +1,12 @@
+#ifndef SIMULATOR_H
+#define SIMULATOR_H
+
 #include <string>
 
 #include <stdbool.h>
 
 #include "cache.h"
+#include "loop.h"
 
 using namespace std;
 
@@ -18,13 +22,9 @@ struct Simulator {
     // Data structure C.
     size_t data_c_rows; /**< Number of rows in the C array/matrix. */
     size_t data_c_cols; /**< Number of columns in the C array/matrix. */
-    // Loop maximums and jumps.
-    int i_max; /**< Maximum value of the i loop. */
-    int i_jump; /**< The step for each iteration of the i loop. */
-    int j_max; /**< Maximum value of the j loop. */
-    int j_jump; /**< The step for each iteration of the j loop. */
-    int k_max; /**< Maximum value of the k loop. */
-    int k_jump; /**< The step for each iteration of the k loop. */
+    // Loop information
+    int num_loops;
+    Loop *loops;
     // Data base addresses.
     uint32_t a_base_addr; /**< Base address of the A data array/matrix. */
     uint32_t b_base_addr; /**< Base address of the B data array/matrix. */
@@ -40,3 +40,4 @@ void allocate_simulator_data(Simulator* sim);
 void destroy_simulator(Simulator* sim);
 std::string run_simulator(Simulator* sim);
 
+#endif

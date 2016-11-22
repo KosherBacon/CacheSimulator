@@ -12,6 +12,13 @@
 
 using namespace std;
 
+// Method prototypes.
+
+static inline bool cache_contains(Cache *cache, uint32_t tag, uint32_t set_id);
+static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int i, int j, int k);
+static inline uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits);
+static inline uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag_bits);
+
 // Static methods (private except for this file).
 
 static inline bool cache_contains(Cache *cache, uint32_t tag, uint32_t set_id)
@@ -31,6 +38,54 @@ static inline bool cache_contains(Cache *cache, uint32_t tag, uint32_t set_id)
         }
     }
     return false;
+}
+
+static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int i, int j, int k)
+{
+    int dest_line;
+    bool inserted;
+    uint32_t a_addr, b_addr, c_addr;
+    uint32_t set_a, set_b, set_c;
+    uint32_t tag_a, tag_b, tag_c;
+    inserted = false;
+    a_addr = sim->a_base_addr
+        + (i * sim->data_a_cols * sim->elem_size)
+        + (k * sim->elem_size);
+    tag_a = tag_from_addr(sim->elem_size, a_addr, sim->cache.tag_bits);
+    set_a = set_from_addr(a_addr, sim->cache.b_bits, sim->cache.tag_bits);
+    if (!cache_contains(&sim->cache, tag_a, set_a))
+    {
+        dest_line = cache_insert(&sim->cache, set_a, tag_a);
+        *os << set_a << "," << dest_line << "," << tag_a << "," << "r" << "\n";
+        inserted = true;
+    }
+    b_addr = sim->b_base_addr
+        + (k * sim->data_b_cols * sim->elem_size)
+        + (j * sim->elem_size);
+    tag_b = tag_from_addr(sim->elem_size, b_addr, sim->cache.tag_bits);
+    set_b = set_from_addr(b_addr, sim->cache.b_bits, sim->cache.tag_bits);
+    if (!cache_contains(&sim->cache, tag_b, set_b))
+    {
+        dest_line = cache_insert(&sim->cache, set_b, tag_b);
+        *os << set_b << "," << dest_line << "," << tag_b << "," << "g" << "\n";
+        inserted = true;
+    }
+    c_addr = sim->c_base_addr
+        + (i * sim->data_c_cols * sim->elem_size)
+        + (k * sim->elem_size);
+    tag_c = tag_from_addr(sim->elem_size, c_addr, sim->cache.tag_bits);
+    set_c = set_from_addr(c_addr, sim->cache.b_bits, sim->cache.tag_bits);
+    if (!cache_contains(&sim->cache, tag_c, set_c))
+    {
+        dest_line = cache_insert(&sim->cache, set_c, tag_c);
+        *os << set_c << "," << dest_line << "," << tag_c << "," << "b" << "\n";
+        inserted = true;
+    }
+    if (inserted)
+    {
+        *os << "\n";
+    }
+
 }
 
 static inline uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits)
@@ -68,6 +123,7 @@ void allocate_simulator_data(Simulator* sim)
 void destroy_simulator(Simulator* sim)
 {
     uint32_t i;
+    free(sim->loops);
     for (i = 0; i < sim->cache.num_sets; i++)
     {
         delete sim->cache.sets[i].line_order;
@@ -83,55 +139,13 @@ std::string run_simulator(Simulator* sim)
     // C[i][k] += A[i][k] * B[k][j]
     std::stringstream output_stream;
     register int i, j, k;
-    int dest_line;
-    bool inserted;
-    uint32_t a_addr, b_addr, c_addr;
-    uint32_t set_a, set_b, set_c;
-    uint32_t tag_a, tag_b, tag_c;
-    for (i = 0; i < sim->i_max; i+=sim->i_jump)
+    for (i = 0; i < sim->loops[0].max && sim->num_loops >= 1; i+=sim->loops[0].jump)
     {
-        for (j = 0; j < sim->j_max; j+=sim->j_jump)
+        for (j = 0; j < sim->loops[1].max && sim->num_loops >= 2; j+=sim->loops[1].jump)
         {
-            for (k = 0; k < sim->k_max; k+=sim->k_jump)
+            for (k = 0; k < sim->loops[2].max && sim->num_loops >= 3; k+=sim->loops[2].jump)
             {
-                inserted = false;
-                a_addr = sim->a_base_addr
-                    + (i * sim->data_a_cols * sim->elem_size)
-                    + (k * sim->elem_size);
-                tag_a = tag_from_addr(sim->elem_size, a_addr, sim->cache.tag_bits);
-                set_a = set_from_addr(a_addr, sim->cache.b_bits, sim->cache.tag_bits);
-                if (!cache_contains(&sim->cache, tag_a, set_a))
-                {
-                    dest_line = cache_insert(&sim->cache, set_a, tag_a);
-                    output_stream << set_a << "," << dest_line << "," << tag_a << "," << "r" << "\n";
-                    inserted = true;
-                }
-                b_addr = sim->b_base_addr
-                    + (k * sim->data_b_cols * sim->elem_size)
-                    + (j * sim->elem_size);
-                tag_b = tag_from_addr(sim->elem_size, b_addr, sim->cache.tag_bits);
-                set_b = set_from_addr(b_addr, sim->cache.b_bits, sim->cache.tag_bits);
-                if (!cache_contains(&sim->cache, tag_b, set_b))
-                {
-                    dest_line = cache_insert(&sim->cache, set_b, tag_b);
-                    output_stream << set_b << "," << dest_line << "," << tag_b << "," << "g" << "\n";
-                    inserted = true;
-                }
-                c_addr = sim->c_base_addr
-                    + (i * sim->data_c_cols * sim->elem_size)
-                    + (k * sim->elem_size);
-                tag_c = tag_from_addr(sim->elem_size, c_addr, sim->cache.tag_bits);
-                set_c = set_from_addr(c_addr, sim->cache.b_bits, sim->cache.tag_bits);
-                if (!cache_contains(&sim->cache, tag_c, set_c))
-                {
-                    dest_line = cache_insert(&sim->cache, set_c, tag_c);
-                    output_stream << set_c << "," << dest_line << "," << tag_c << "," << "b" << "\n";
-                    inserted = true;
-                }
-                if (inserted)
-                {
-                    output_stream << "\n";
-                }
+                calculate_cache_lines(sim, &output_stream, i, j, k);
             }
         }
     }

@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +8,7 @@
 
 #include "rapidjson/document.h"
 
+#include "../include/loop.h"
 #include "../include/simulator.h"
 
 using namespace std;
@@ -38,6 +40,8 @@ Simulator* parse_input(const char* input)
     sim->cache.b_bits = doc["b"].GetInt(); // b
     sim->cache.lines_per_set = doc["E"].GetInt(); // E
     replacement_policy = doc["replacement"].GetString(); // Replacement policy
+    sim->elem_size = sizeof(uint32_t);
+    sim->cache.tag_bits = sim->elem_size - sim->cache.b_bits - (int) (log2((double) sim->cache.num_sets) + 0.5);
     if (strcmp(replacement_policy, "LRU"))
     {
         sim->cache.policy = LRU;
@@ -89,30 +93,21 @@ Simulator* parse_input(const char* input)
 
     // Parse loop block.
     const rapidjson::Value& loops = doc["loops"];
-    for (i = 0; i < loops.Size(); i++)
+    sim->num_loops = loops.Size();
+    sim->loops = (Loop*) malloc(sim->num_loops * sizeof(Loop));
+    for (i = 0; i < sim->num_loops; i++)
     {
         const rapidjson::Value& loop = loops[i];
         if (!loop.HasMember("idx") || !loop.HasMember("step") || !loop.HasMember("limit"))
         {
             // TODO - ERROR.
         }
-        switch (loop["idx"].GetString()[0])
-        {
-            case 'i':
-                sim->i_jump = loop["step"].GetInt();
-                sim->i_max = loop["limit"].GetInt();
-                break;
-            case 'j':
-                sim->j_jump = loop["step"].GetInt();
-                sim->j_max = loop["limit"].GetInt();
-                break;
-            case 'k':
-                sim->k_jump = loop["step"].GetInt();
-                sim->k_max = loop["limit"].GetInt();
-                break;
-        }
+        sim->loops[i].jump = loop["step"].GetInt();
+        sim->loops[i].max = loop["limit"].GetInt();
     }
-
+    sim->a_base_addr = 0xAAAA0000;
+    sim->b_base_addr = 0xBBBB0000;
+    sim->c_base_addr = 0xCCCC0000;
     return sim;
 }
 
@@ -134,12 +129,12 @@ void simulate()
     sim.data_b_cols = 4;
     sim.data_c_rows = 4;
     sim.data_c_cols = 4;
-    sim.i_max = 4;
-    sim.i_jump = 1;
-    sim.j_max = 4;
-    sim.j_jump = 1;
-    sim.k_max = 4;
-    sim.k_jump = 1;
+    //sim.i_max = 4;
+    //sim.i_jump = 1;
+    //sim.j_max = 4;
+    //sim.j_jump = 1;
+    //sim.k_max = 4;
+    //sim.k_jump = 1;
     sim.a_base_addr = 0xAAAA0000;
     sim.b_base_addr = 0xBBBB0000;
     sim.c_base_addr = 0xCCCC0000;
@@ -174,9 +169,9 @@ int main(int argc, char* argv[])
     Simulator *sim;
     sim = prepare_input(
             "{\n"
-            "      \"S\": 8,\n"
-            "      \"b\": 3,\n"
-            "      \"E\": 8,\n"
+            "      \"S\": 1,\n"
+            "      \"b\": 5,\n"
+            "      \"E\": 1024,\n"
             "      \"m\": 32,\n"
             "      \"replacement\": \"LRU\",\n"
             "      \"cache-writes\": true,\n"
@@ -185,13 +180,15 @@ int main(int argc, char* argv[])
             "            { \"name\": \"B\", \"color\": \"purple\", \"rows\": 6, \"cols\": 1, \"wordsize\": 64 }\n"
             "      ],\n"
             "      \"loops\": [\n"
-            "            { \"idx\": \"i\", \"step\": 1, \"limit\": 6 },\n"
-            "            { \"idx\": \"j\", \"step\": 2, \"limit\": 4 }\n"
+            "            { \"idx\": \"i\", \"step\": 1, \"limit\": 16 },\n"
+            "            { \"idx\": \"j\", \"step\": 1, \"limit\": 32 },\n"
+            "            { \"idx\": \"k\", \"step\": 1, \"limit\": 64 }\n"
             "      ],\n"
             "      \"computation\": \"A[j] = A[j] + B[j]\"\n"
             "}"
             );
     //simulate();
+    std::cout << run_simulator(sim) << std::endl;
     destroy_simulator(sim);
     return EXIT_SUCCESS;
 }
