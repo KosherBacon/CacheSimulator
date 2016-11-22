@@ -133,22 +133,29 @@ void destroy_simulator(Simulator* sim)
     free(sim);
 }
 
+void loop_helper(Simulator* sim, std::stringstream* os, int* indices, int level)
+{
+    if (level == 0)
+    {
+        calculate_cache_lines(sim, os, indices[0], indices[1], indices[2]);
+    }
+    else
+    {
+        indices[level - 1] = 0;
+        for (indices[level - 1] = 0; indices[level - 1] < sim->loops[level - 1].max; indices[level - 1]+=sim->loops[level - 1].jump)
+        {
+            loop_helper(sim, os, indices, level - 1);
+        }
+    }
+}
+
 std::string run_simulator(Simulator* sim)
 {
     // TODO - Avoid assumption of standard matrix matrix multiply.
     // C[i][k] += A[i][k] * B[k][j]
     std::stringstream output_stream;
-    register int i, j, k;
-    for (i = 0; i < sim->loops[0].max && sim->num_loops >= 1; i+=sim->loops[0].jump)
-    {
-        for (j = 0; j < sim->loops[1].max && sim->num_loops >= 2; j+=sim->loops[1].jump)
-        {
-            for (k = 0; k < sim->loops[2].max && sim->num_loops >= 3; k+=sim->loops[2].jump)
-            {
-                calculate_cache_lines(sim, &output_stream, i, j, k);
-            }
-        }
-    }
+    int indices[] = {0, 0, 0};
+    loop_helper(sim, &output_stream, indices, sim->num_loops);
     return output_stream.str();
 }
 
