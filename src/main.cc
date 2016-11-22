@@ -39,9 +39,13 @@ Simulator* parse_input(const char* input)
     sim->cache.num_sets = doc["S"].GetInt(); // S
     sim->cache.b_bits = doc["b"].GetInt(); // b
     sim->cache.lines_per_set = doc["E"].GetInt(); // E
+
+    // Check for m as a variable, if present use its value, else default to sizeof(uint32_t).
+    sim->addr_size = (doc.HasMember("m") && doc["m"].IsInt() && doc["m"].GetInt() > 0) ? doc["m"].GetInt() : sizeof(uint32_t);
+
     replacement_policy = doc["replacement"].GetString(); // Replacement policy
     sim->elem_size = sizeof(uint32_t);
-    sim->cache.tag_bits = sim->elem_size - sim->cache.b_bits - (int) (log2((double) sim->cache.num_sets) + 0.5);
+    sim->cache.tag_bits = sim->addr_size - sim->cache.b_bits - (int) (log2((double) sim->cache.num_sets) + 0.5);
     if (strcmp(replacement_policy, "LRU"))
     {
         sim->cache.policy = LRU;
@@ -61,9 +65,6 @@ Simulator* parse_input(const char* input)
     {
         // TODO - ERROR.
     }
-    // Check for m as a variable, if present use its value, else default to sizeof(uint32_t).
-    sim->addr_size = (doc.HasMember("m") && doc["m"].IsInt() && doc["m"].GetInt() > 0) ? doc["m"].GetInt() : sizeof(uint32_t);
-
     // Parse data structure block.
     const rapidjson::Value& data = doc["data"];
     for (i = 0; i < data.Size(); i++)
@@ -169,9 +170,9 @@ int main(int argc, char* argv[])
     Simulator *sim;
     sim = prepare_input(
             "{\n"
-            "      \"S\": 1,\n"
+            "      \"S\": 1024,\n"
             "      \"b\": 5,\n"
-            "      \"E\": 1024,\n"
+            "      \"E\": 1,\n"
             "      \"m\": 32,\n"
             "      \"replacement\": \"LRU\",\n"
             "      \"cache-writes\": true,\n"
@@ -180,9 +181,9 @@ int main(int argc, char* argv[])
             "            { \"name\": \"B\", \"color\": \"purple\", \"rows\": 6, \"cols\": 1, \"wordsize\": 64 }\n"
             "      ],\n"
             "      \"loops\": [\n"
-            "            { \"idx\": \"i\", \"step\": 1, \"limit\": 16 },\n"
-            "            { \"idx\": \"j\", \"step\": 1, \"limit\": 32 },\n"
-            "            { \"idx\": \"k\", \"step\": 1, \"limit\": 64 }\n"
+            "            { \"idx\": \"i\", \"step\": 1, \"limit\": 4 },\n"
+            "            { \"idx\": \"j\", \"step\": 1, \"limit\": 4 },\n"
+            "            { \"idx\": \"k\", \"step\": 1, \"limit\": 4 }\n"
             "      ],\n"
             "      \"computation\": \"A[j] = A[j] + B[j]\"\n"
             "}"
