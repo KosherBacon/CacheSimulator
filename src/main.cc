@@ -108,6 +108,11 @@ Simulator* parse_input(const char* input)
     sim->a_base_addr = 0xAAAA0000;
     sim->b_base_addr = 0xBBBB0000;
     sim->c_base_addr = 0xCCCC0000;
+
+    // Parse computation block.
+    const rapidjson::Value& computation = doc["computation"];
+    const rapidjson::Value& LHS = computation["LHS"];
+    const rapidjson::Value& RHS = computation["RHS"];
     return sim;
 }
 
@@ -169,23 +174,27 @@ int main(int argc, char* argv[])
     Simulator *sim;
     sim = prepare_input(
             "{\n"
-            "      \"S\": 1,\n"
-            "      \"b\": 1,\n"
-            "      \"E\": 1024,\n"
+            "      \"S\": 8,\n"
+            "      \"b\": 3,\n"
+            "      \"E\": 8,\n"
             "      \"m\": 32,\n"
             "      \"replacement\": \"LRU\",\n"
             "      \"cache-writes\": true,\n"
             "      \"data\": [\n"
-            "            { \"name\": \"A\", \"color\": \"red\", \"rows\": 4, \"cols\": 4, \"wordsize\": 32 },\n"
-            "            { \"name\": \"B\", \"color\": \"green\", \"rows\": 4, \"cols\": 4, \"wordsize\": 64 },\n"
-            "            { \"name\": \"C\", \"color\": \"blue\", \"rows\": 4, \"cols\": 4, \"wordsize\": 64 }\n"
+            "            { \"name\": \"A\", \"color\": \"green\", \"rows\": 4, \"cols\": 4, \"wordsize\": 32 },\n"
+            "            { \"name\": \"B\", \"color\": \"purple\", \"rows\": 6, \"cols\": 1, \"wordsize\": 64 }\n"
             "      ],\n"
             "      \"loops\": [\n"
-            "            { \"idx\": \"i\", \"step\": 1, \"limit\": 4 },\n"
-            "            { \"idx\": \"j\", \"step\": 1, \"limit\": 4 },\n"
-            "            { \"idx\": \"k\", \"step\": 1, \"limit\": 4 }\n"
+            "            { \"idx\": \"i\", \"step\": 1, \"limit\": 6 },\n"
+            "            { \"idx\": \"j\", \"step\": 2, \"limit\": 4 }\n"
             "      ],\n"
-            "      \"computation\": \"A[j] = A[j] + B[j]\"\n"
+            "      \"computation\": {\n"
+            "            \"LHS\": { \"name\": \"A\", \"idx\": [ \"j\", \"j\" ] },\n"
+            "            \"RHS\": [\n"
+            "                  { \"name\": \"A\", \"idx\": [ \"j\", \"j\" ] },\n"
+            "                  { \"name\": \"B\", \"idx\": [ \"j\" ] }\n"
+            "            ]\n"
+            "      }\n"
             "}"
             );
     //simulate();
