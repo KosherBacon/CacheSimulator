@@ -6,10 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "rapidjson/document.h"
-
 #include "../include/loop.h"
 #include "../include/simulator.h"
+#include "../include/rapidjson/document.h"
 
 using namespace std;
 
@@ -171,7 +170,7 @@ int main(int argc, char* argv[])
     sim = prepare_input(
             "{\n"
             "      \"S\": 1,\n"
-            "      \"b\": 5,\n"
+            "      \"b\": 1,\n"
             "      \"E\": 1024,\n"
             "      \"m\": 32,\n"
             "      \"replacement\": \"LRU\",\n"

@@ -56,7 +56,7 @@ static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int i, 
     if (!cache_contains(&sim->cache, tag_a, set_a))
     {
         dest_line = cache_insert(&sim->cache, set_a, tag_a);
-        *os << set_a << "," << dest_line << "," << tag_a << "," << "r" << "\n";
+        *os << set_a << "," << dest_line << "," << "1" << "," << tag_a << "\n";
         inserted = true;
     }
     b_addr = sim->b_base_addr
@@ -67,7 +67,7 @@ static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int i, 
     if (!cache_contains(&sim->cache, tag_b, set_b))
     {
         dest_line = cache_insert(&sim->cache, set_b, tag_b);
-        *os << set_b << "," << dest_line << "," << tag_b << "," << "g" << "\n";
+        *os << set_b << "," << dest_line << "," << "2" << "," << tag_b << "\n";
         inserted = true;
     }
     c_addr = sim->c_base_addr
@@ -78,7 +78,7 @@ static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int i, 
     if (!cache_contains(&sim->cache, tag_c, set_c))
     {
         dest_line = cache_insert(&sim->cache, set_c, tag_c);
-        *os << set_c << "," << dest_line << "," << tag_c << "," << "b" << "\n";
+        *os << set_c << "," << dest_line << "," << "3" << "," << tag_c << "\n";
         inserted = true;
     }
     if (inserted)
