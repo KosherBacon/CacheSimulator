@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
     i = 0;
     while (scanf("%c", &nextchar) > 0) {
         buf[i] = nextchar;
-        if (nextchar == '\n')
+        if (nextchar == '\0')
             break;
         i++;
     }

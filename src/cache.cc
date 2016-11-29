@@ -55,12 +55,15 @@ int cache_insert(Cache* cache, size_t set, uint32_t tag)
                 // Fill the first empty line.
                 for (i = 0; i < lines_per_set; i++)
                 {
-                    (cache->sets[set]).lines[i].valid = true;
-                    (cache->sets[set]).lines[i].tag = tag;
-                    p_count.line = i;
-                    p_count.value = 1;
-                    cache->sets[set].line_order->push_back(p_count);
-                    return i;
+                    if (!cache->sets[set].lines[i].valid)
+                    {
+                        (cache->sets[set]).lines[i].valid = true;
+                        (cache->sets[set]).lines[i].tag = tag;
+                        p_count.line = i;
+                        p_count.value = 1;
+                        cache->sets[set].line_order->push_back(p_count);
+                        return i;
+                    }
                 }
             }
             else
@@ -70,6 +73,7 @@ int cache_insert(Cache* cache, size_t set, uint32_t tag)
                 policy->value++;
                 return policy->line;
             }
+            // TODO - Fire warning message.
             return -1;
         default:
             // TODO - Fire warning message.
