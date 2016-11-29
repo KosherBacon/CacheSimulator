@@ -174,7 +174,6 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
             set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
             if (!cache_contains(&sim->cache, tag, set))
             {
-                printf("set: %i\n", set);
                 dest_line = cache_insert(&sim->cache, set, tag);
                 *os << set << "," << dest_line << "," << color << "," << tag << "$";
                 inserted = true;
@@ -205,7 +204,6 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
             set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
             if (!cache_contains(&sim->cache, tag, set))
             {
-                printf("set: %i\n", set);
                 dest_line = cache_insert(&sim->cache, set, tag);
                 *os << set << "," << dest_line << "," << color << "," << tag << "$";
                 inserted = true;
@@ -273,7 +271,7 @@ void allocate_simulator_data(Simulator* sim)
 void destroy_simulator(Simulator* sim)
 {
     uint32_t i;
-    free(sim->rhs);
+    delete sim->rhs;
     delete sim->loops;
     for (i = 0; i < sim->cache.num_sets; i++)
     {

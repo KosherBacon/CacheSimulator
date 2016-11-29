@@ -129,7 +129,7 @@ Simulator* parse_input(const char* input)
     }
     const rapidjson::Value& RHS = computation["RHS"];
     sim->num_rhs = RHS.Size();
-    sim->rhs = (Data*) malloc(sim->num_rhs * sizeof(Data));
+    sim->rhs = new Data[sim->num_rhs];
     for (i = 0; i < sim->num_rhs; i++)
     {
         sim->rhs[i].name = RHS[i]["name"].GetString()[0];
