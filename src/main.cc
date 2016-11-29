@@ -199,15 +199,20 @@ void simulate()
 int main(int argc, char* argv[])
 {
     Simulator *sim;
-    char *buf, *p;
+    char *buf, nextchar;
 
-    setbuf(stdout, NULL);
+    //setbuf(stdout, NULL);
 
     buf = new char[2048];
-    p = buf;
-    while((*p++ = getchar()) != '\n') ;
-    *p = '\0';
-    printf("%s\n", buf);
+
+    int i = 0;
+    while (scanf("%c", &nextchar) > 0) {
+        buf[i] = nextchar;
+        if (nextchar == '\0')
+            break;
+        i++;
+    }
+        
     sim = prepare_input(buf);
     //simulate();
     std::cout << run_simulator(sim) << std::endl;
