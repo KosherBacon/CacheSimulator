@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 3.6)
+project(CacheSimulator)
+
+set(CMAKE_CXX_STANDARD 11)
+
+set(SOURCE_FILES
+    include/rapidjson/error/en.h
+    include/rapidjson/error/error.h
+    include/rapidjson/internal/biginteger.h
+    include/rapidjson/internal/diyfp.h
+    include/rapidjson/internal/dtoa.h
+    include/rapidjson/internal/ieee754.h
+    include/rapidjson/internal/itoa.h
+    include/rapidjson/internal/meta.h
+    include/rapidjson/internal/pow10.h
+    include/rapidjson/internal/regex.h
+    include/rapidjson/internal/stack.h
+    include/rapidjson/internal/strfunc.h
+    include/rapidjson/internal/strtod.h
+    include/rapidjson/internal/swap.h
+    include/rapidjson/msinttypes/inttypes.h
+    include/rapidjson/msinttypes/stdint.h
+    include/cache.h
+    include/data.h
+    include/loop.h
+    include/simulator.h
+    src/cache.cc
+    src/main.cc
+    src/simulator.cc)
+
+add_executable(CacheSimulator ${SOURCE_FILES})
