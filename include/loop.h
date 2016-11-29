@@ -8,6 +8,7 @@ using namespace std;
 typedef struct Loop Loop;
 
 struct Loop {
+    char name;
     int max;
     int jump;
 };

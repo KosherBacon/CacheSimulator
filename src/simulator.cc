@@ -15,7 +15,8 @@ using namespace std;
 // Method prototypes.
 
 static inline bool cache_contains(Cache *cache, uint32_t tag, uint32_t set_id);
-static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int i, int j, int k);
+static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int first, int second, int third);
+static inline int get_index(int idx, int first, int second, int third);
 static inline uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits);
 static inline uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag_bits);
 
@@ -40,52 +41,186 @@ static inline bool cache_contains(Cache *cache, uint32_t tag, uint32_t set_id)
     return false;
 }
 
-static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int i, int j, int k)
+static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, int first, int second, int third)
 {
     int dest_line;
     bool inserted;
-    uint32_t a_addr, b_addr, c_addr;
-    uint32_t set_a, set_b, set_c;
-    uint32_t tag_a, tag_b, tag_c;
+    char index;
+    int color, cols;
+    int i, idx1, idx2;
+    uint32_t addr, base_addr, tag, set;
+    Data *lhs;
+    Data *rhs;
     inserted = false;
-    a_addr = sim->a_base_addr
-        + (i * sim->data_a_cols * sim->elem_size)
-        + (k * sim->elem_size);
-    tag_a = tag_from_addr(sim->elem_size, a_addr, sim->cache.tag_bits);
-    set_a = set_from_addr(a_addr, sim->cache.b_bits, sim->cache.tag_bits);
-    if (!cache_contains(&sim->cache, tag_a, set_a))
+
+    // Handle LHS.
+    lhs = &sim->lhs;
+    if (lhs->name == 'A')
     {
-        dest_line = cache_insert(&sim->cache, set_a, tag_a);
-        *os << set_a << "," << dest_line << "," << "1" << "," << tag_a << "\n";
-        inserted = true;
+        base_addr = sim->a_base_addr;
+        color = 1;
+        cols = sim->data_a_cols;
     }
-    b_addr = sim->b_base_addr
-        + (k * sim->data_b_cols * sim->elem_size)
-        + (j * sim->elem_size);
-    tag_b = tag_from_addr(sim->elem_size, b_addr, sim->cache.tag_bits);
-    set_b = set_from_addr(b_addr, sim->cache.b_bits, sim->cache.tag_bits);
-    if (!cache_contains(&sim->cache, tag_b, set_b))
+    else if (lhs->name == 'B')
     {
-        dest_line = cache_insert(&sim->cache, set_b, tag_b);
-        *os << set_b << "," << dest_line << "," << "2" << "," << tag_b << "\n";
-        inserted = true;
+        base_addr = sim->b_base_addr;
+        color = 2;
+        cols = sim->data_b_cols;
     }
-    c_addr = sim->c_base_addr
-        + (i * sim->data_c_cols * sim->elem_size)
-        + (k * sim->elem_size);
-    tag_c = tag_from_addr(sim->elem_size, c_addr, sim->cache.tag_bits);
-    set_c = set_from_addr(c_addr, sim->cache.b_bits, sim->cache.tag_bits);
-    if (!cache_contains(&sim->cache, tag_c, set_c))
+    else if (lhs->name == 'C')
     {
-        dest_line = cache_insert(&sim->cache, set_c, tag_c);
-        *os << set_c << "," << dest_line << "," << "3" << "," << tag_c << "\n";
-        inserted = true;
+        base_addr = sim->c_base_addr;
+        color = 3;
+        cols = sim->data_c_cols;
+    }
+    if (lhs->num_indices == 1)
+    {
+        index = lhs->first_index;
+        for (idx1 = 0; idx1 < sim->num_loops; idx1++)
+        {
+            if (index == sim->loops[idx1].name)
+            {
+                break;
+            }
+        }
+        addr = base_addr + get_index(idx1, first, second, third) * sim->elem_size;
+        tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
+        set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
+        if (!cache_contains(&sim->cache, tag, set))
+        {
+            dest_line = cache_insert(&sim->cache, set, tag);
+            *os << set << "," << dest_line << "," << color << "," << tag << "$";
+            inserted = true;
+        }
+    }
+    else if (lhs->num_indices == 2)
+    {
+        index = lhs->first_index;
+        for (idx1 = 0; idx1 < sim->num_loops; idx1++)
+        {
+            if (index == sim->loops[idx1].name)
+            {
+                break;
+            }
+        }
+        index = lhs->second_index;
+        for (idx2 = 0; idx2 < sim->num_loops; idx2++)
+        {
+            if (index == sim->loops[idx2].name)
+            {
+                break;
+            }
+        }
+        addr = base_addr
+            + (get_index(idx1, first, second, third) * cols * sim->elem_size)
+            + (get_index(idx2, first, second, third) * sim->elem_size);
+        tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
+        set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
+        if (!cache_contains(&sim->cache, tag, set))
+        {
+            dest_line = cache_insert(&sim->cache, set, tag);
+            *os << set << "," << dest_line << "," << color << "," << tag << "$";
+            inserted = true;
+        }
+    }
+
+    // Handle RHS.
+    for (i = 0; i < sim->num_rhs; i++)
+    {
+        rhs = &sim->rhs[i];
+        if (rhs->name == 'A')
+        {
+            base_addr = sim->a_base_addr;
+            color = 1;
+            cols = sim->data_a_cols;
+        }
+        else if (rhs->name == 'B')
+        {
+            base_addr = sim->b_base_addr;
+            color = 2;
+            cols = sim->data_b_cols;
+        }
+        else if (rhs->name == 'C')
+        {
+            base_addr = sim->c_base_addr;
+            color = 3;
+            cols = sim->data_c_cols;
+        }
+        if (rhs->num_indices == 1)
+        {
+            index = rhs->first_index;
+            for (idx1 = 0; idx1 < sim->num_loops; idx1++)
+            {
+                if (index == sim->loops[idx1].name)
+                {
+                    break;
+                }
+            }
+            addr = base_addr + get_index(idx1, first, second, third) * sim->elem_size;
+            tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
+            set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
+            if (!cache_contains(&sim->cache, tag, set))
+            {
+                dest_line = cache_insert(&sim->cache, set, tag);
+                *os << set << "," << dest_line << "," << color << "," << tag << "$";
+                inserted = true;
+            }
+        }
+        else if (rhs->num_indices == 2)
+        {
+            index = rhs->first_index;
+            for (idx1 = 0; idx1 < sim->num_loops; idx1++)
+            {
+                if (index == sim->loops[idx1].name)
+                {
+                    break;
+                }
+            }
+            index = rhs->second_index;
+            for (idx2 = 0; idx2 < sim->num_loops; idx2++)
+            {
+                if (index == sim->loops[idx2].name)
+                {
+                    break;
+                }
+            }
+            addr = base_addr
+                + (get_index(idx1, first, second, third) * cols * sim->elem_size)
+                + (get_index(idx2, first, second, third) * sim->elem_size);
+            tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
+            set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
+            if (!cache_contains(&sim->cache, tag, set))
+            {
+                dest_line = cache_insert(&sim->cache, set, tag);
+                *os << set << "," << dest_line << "," << color << "," << tag << "$";
+                inserted = true;
+            }
+        }
     }
     if (inserted)
     {
-        *os << "\n";
+        *os << "$";
     }
+}
 
+static inline int get_index(int idx, int first, int second, int third)
+{
+    if (idx == 0)
+    {
+        return first;
+    }
+    else if (idx == 1)
+    {
+        return second;
+    }
+    else if (idx == 2)
+    {
+        return third;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 static inline uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits)
@@ -123,6 +258,7 @@ void allocate_simulator_data(Simulator* sim)
 void destroy_simulator(Simulator* sim)
 {
     uint32_t i;
+    free(sim->rhs);
     free(sim->loops);
     for (i = 0; i < sim->cache.num_sets; i++)
     {
@@ -151,11 +287,25 @@ void loop_helper(Simulator* sim, std::stringstream* os, int* indices, int level)
 
 std::string run_simulator(Simulator* sim)
 {
-    // TODO - Avoid assumption of standard matrix matrix multiply.
-    // C[i][k] += A[i][k] * B[k][j]
+    std::string str;
+    char *c_str;
+    int idx, length;
     std::stringstream output_stream;
     int indices[] = {0, 0, 0};
     loop_helper(sim, &output_stream, indices, sim->num_loops);
-    return output_stream.str();
+    str = output_stream.str();
+    c_str = new char[str.length() + 1];
+    strcpy(c_str, str.c_str());
+    length = strlen(c_str);
+    idx = length - 1;
+    // Remove trailing separator characters.
+    while (c_str[idx] == '$')
+    {
+        c_str[idx] = '\0';
+        idx--;
+    }
+    str = string(c_str);
+    delete c_str;
+    return str;
 }
 

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../include/loop.h"
 #include "../include/simulator.h"
@@ -102,6 +103,7 @@ Simulator* parse_input(const char* input)
         {
             // TODO - ERROR.
         }
+        sim->loops[i].name = loop["idx"].GetString()[0];
         sim->loops[i].jump = loop["step"].GetInt();
         sim->loops[i].max = loop["limit"].GetInt();
     }
@@ -112,7 +114,32 @@ Simulator* parse_input(const char* input)
     // Parse computation block.
     const rapidjson::Value& computation = doc["computation"];
     const rapidjson::Value& LHS = computation["LHS"];
+    sim->lhs.name = LHS["name"].GetString()[0];
+    sim->lhs.num_indices = LHS["idx"].Size();
+    if (sim->lhs.num_indices >= 1)
+    {
+        sim->lhs.first_index = LHS["idx"][0].GetString()[0];
+    }
+    if (sim->lhs.num_indices >= 2)
+    {
+        sim->lhs.second_index = LHS["idx"][0].GetString()[0];
+    }
     const rapidjson::Value& RHS = computation["RHS"];
+    sim->num_rhs = RHS.Size();
+    sim->rhs = (Data*) malloc(sim->num_rhs * sizeof(Data));
+    for (i = 0; i < sim->num_rhs; i++)
+    {
+        sim->rhs[i].name = RHS[i]["name"].GetString()[0];
+        sim->rhs[i].num_indices = RHS[i]["idx"].Size();
+        if (sim->rhs[i].num_indices >= 1)
+        {
+            sim->rhs[i].first_index = LHS["idx"][0].GetString()[0];
+        }
+        if (sim->rhs[i].num_indices >= 2)
+        {
+            sim->rhs[i].second_index = LHS["idx"][0].GetString()[0];
+        }
+    }
     return sim;
 }
 
@@ -172,33 +199,19 @@ void simulate()
 int main(int argc, char* argv[])
 {
     Simulator *sim;
-    sim = prepare_input(
-            "{\n"
-            "      \"S\": 8,\n"
-            "      \"b\": 3,\n"
-            "      \"E\": 8,\n"
-            "      \"m\": 32,\n"
-            "      \"replacement\": \"LRU\",\n"
-            "      \"cache-writes\": true,\n"
-            "      \"data\": [\n"
-            "            { \"name\": \"A\", \"color\": \"green\", \"rows\": 4, \"cols\": 4, \"wordsize\": 32 },\n"
-            "            { \"name\": \"B\", \"color\": \"purple\", \"rows\": 6, \"cols\": 1, \"wordsize\": 64 }\n"
-            "      ],\n"
-            "      \"loops\": [\n"
-            "            { \"idx\": \"i\", \"step\": 1, \"limit\": 6 },\n"
-            "            { \"idx\": \"j\", \"step\": 2, \"limit\": 4 }\n"
-            "      ],\n"
-            "      \"computation\": {\n"
-            "            \"LHS\": { \"name\": \"A\", \"idx\": [ \"j\", \"j\" ] },\n"
-            "            \"RHS\": [\n"
-            "                  { \"name\": \"A\", \"idx\": [ \"j\", \"j\" ] },\n"
-            "                  { \"name\": \"B\", \"idx\": [ \"j\" ] }\n"
-            "            ]\n"
-            "      }\n"
-            "}"
-            );
+    char *buf, *p;
+
+    setbuf(stdout, NULL);
+
+    buf = new char[2048];
+    p = buf;
+    while((*p++ = getchar()) != '\n') ;
+    *p = '\0';
+    printf("%s\n", buf);
+    sim = prepare_input(buf);
     //simulate();
     std::cout << run_simulator(sim) << std::endl;
+    delete buf;
     destroy_simulator(sim);
     return EXIT_SUCCESS;
 }

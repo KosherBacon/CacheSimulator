@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include "cache.h"
+#include "data.h"
 #include "loop.h"
 
 using namespace std;
@@ -13,6 +14,10 @@ using namespace std;
 typedef struct Simulator Simulator;
 
 struct Simulator {
+    // Data structure information.
+    Data lhs; /**< LHS data structure. */
+    int num_rhs;
+    Data *rhs;
     // Data structure A.
     size_t data_a_rows; /**< Number of rows in the A array/matrix. */
     size_t data_a_cols; /**< Number of columns in the A array/matrix. */
