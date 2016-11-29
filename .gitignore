@@ -1,6 +1,9 @@
 # Doxygen
 docs/
 
+# Project directories
+build/
+
 # CLion
 .idea/
 cmake-build-debug/

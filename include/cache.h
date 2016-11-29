@@ -1,3 +1,6 @@
+#ifndef CACHE_H
+#define CACHE_H
+
 #include <deque>
 
 #include <stdbool.h>
@@ -50,5 +53,4 @@ struct Line {
     uint32_t tag;
 };
 
-
-
+#endif

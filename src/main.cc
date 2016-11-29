@@ -46,20 +46,21 @@ Simulator* parse_input(const char* input)
     replacement_policy = doc["replacement"].GetString(); // Replacement policy
     sim->elem_size = sizeof(uint32_t);
     sim->cache.tag_bits = sim->addr_size - sim->cache.b_bits - (int) (log2((double) sim->cache.num_sets) + 0.5);
-    if (strcmp(replacement_policy, "LRU"))
+    if (strcmp(replacement_policy, "LRU") == 0)
     {
         sim->cache.policy = LRU;
     }
-    else if (strcmp(replacement_policy, "LFU"))
+    else if (strcmp(replacement_policy, "LFU") == 0)
     {
         sim->cache.policy = LFU;
     }
-    else if (strcmp(replacement_policy, "RANDOM"))
+    else if (strcmp(replacement_policy, "RANDOM") == 0)
     {
         sim->cache.policy = RANDOM;
     }
-    else if (strcmp(replacement_policy, "DIRECT_MAP"))
+    else if (strcmp(replacement_policy, "DIRECT_MAP") == 0)
     {
+        sim->cache.policy = DIRECT_MAP;
     }
     else
     {
@@ -97,7 +98,7 @@ Simulator* parse_input(const char* input)
     // Parse loop block.
     const rapidjson::Value& loops = doc["loops"];
     sim->num_loops = loops.Size();
-    sim->loops = (Loop*) malloc(sim->num_loops * sizeof(Loop));
+    sim->loops = new Loop[sim->num_loops];
     for (i = 0; i < sim->num_loops; i++)
     {
         const rapidjson::Value& loop = loops[i];

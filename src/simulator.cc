@@ -24,7 +24,7 @@ static inline uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag
 
 static inline bool cache_contains(Cache *cache, uint32_t tag, uint32_t set_id)
 {
-    register int i;
+    int i;
     Line* line;
     for (i = 0; i < cache->lines_per_set; i++)
     {
@@ -274,7 +274,7 @@ void destroy_simulator(Simulator* sim)
 {
     uint32_t i;
     free(sim->rhs);
-    free(sim->loops);
+    delete sim->loops;
     for (i = 0; i < sim->cache.num_sets; i++)
     {
         delete sim->cache.sets[i].line_order;
