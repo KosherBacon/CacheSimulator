@@ -1,6 +1,10 @@
 # Doxygen
 docs/
 
+# CLion
+.idea/
+cmake-build-debug/
+
 # Object files
 *.o
 *.ko

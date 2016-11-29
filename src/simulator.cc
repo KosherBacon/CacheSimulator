@@ -45,9 +45,9 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
 {
     int dest_line;
     bool inserted;
+    size_t cols;
     char index;
-    int color, cols;
-    int i, idx1, idx2;
+    int i, idx1, idx2, color;
     uint32_t addr, base_addr, tag, set;
     Data *lhs;
     Data *rhs;
@@ -73,6 +73,13 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
         color = 3;
         cols = sim->data_c_cols;
     }
+    else
+    {
+        // TODO - ERROR.
+        color = 0;
+        base_addr = 0;
+        cols = 0;
+    }
     if (lhs->num_indices == 1)
     {
         index = lhs->first_index;
@@ -83,7 +90,7 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
                 break;
             }
         }
-        addr = base_addr + get_index(idx1, first, second, third) * sim->elem_size;
+        addr = (uint32_t) (base_addr + get_index(idx1, first, second, third) * sim->elem_size);
         tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
         set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
         if (!cache_contains(&sim->cache, tag, set))
@@ -111,9 +118,9 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
                 break;
             }
         }
-        addr = base_addr
-            + (get_index(idx1, first, second, third) * cols * sim->elem_size)
-            + (get_index(idx2, first, second, third) * sim->elem_size);
+        addr = (uint32_t) (base_addr
+                           + (get_index(idx1, first, second, third) * cols * sim->elem_size)
+                           + (get_index(idx2, first, second, third) * sim->elem_size));
         tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
         set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
         if (!cache_contains(&sim->cache, tag, set))
@@ -146,6 +153,12 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
             color = 3;
             cols = sim->data_c_cols;
         }
+        else {
+            // TODO - ERROR.
+            color = 0;
+            base_addr = 0;
+            cols = 0;
+        }
         if (rhs->num_indices == 1)
         {
             index = rhs->first_index;
@@ -156,11 +169,12 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
                     break;
                 }
             }
-            addr = base_addr + get_index(idx1, first, second, third) * sim->elem_size;
+            addr = (uint32_t) (base_addr + get_index(idx1, first, second, third) * sim->elem_size);
             tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
             set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
             if (!cache_contains(&sim->cache, tag, set))
             {
+                printf("set: %i\n", set);
                 dest_line = cache_insert(&sim->cache, set, tag);
                 *os << set << "," << dest_line << "," << color << "," << tag << "$";
                 inserted = true;
@@ -184,13 +198,14 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
                     break;
                 }
             }
-            addr = base_addr
-                + (get_index(idx1, first, second, third) * cols * sim->elem_size)
-                + (get_index(idx2, first, second, third) * sim->elem_size);
+            addr = (uint32_t) (base_addr
+                               + (get_index(idx1, first, second, third) * cols * sim->elem_size)
+                               + (get_index(idx2, first, second, third) * sim->elem_size));
             tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
             set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
             if (!cache_contains(&sim->cache, tag, set))
             {
+                printf("set: %i\n", set);
                 dest_line = cache_insert(&sim->cache, set, tag);
                 *os << set << "," << dest_line << "," << color << "," << tag << "$";
                 inserted = true;
@@ -296,7 +311,7 @@ std::string run_simulator(Simulator* sim)
     str = output_stream.str();
     c_str = new char[str.length() + 1];
     strcpy(c_str, str.c_str());
-    length = strlen(c_str);
+    length = (int) strlen(c_str);
     idx = length - 1;
     // Remove trailing separator characters.
     while (c_str[idx] == '$')

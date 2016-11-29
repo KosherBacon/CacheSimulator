@@ -17,7 +17,6 @@ using namespace std;
 
 Simulator* parse_input(const char* input);
 Simulator* prepare_input(const char* input);
-void simulate();
 
 // Implementations.
 
@@ -36,12 +35,13 @@ Simulator* parse_input(const char* input)
     doc.Parse(input);
 
     // Initialize values in Simulator struct from JSON blob.
-    sim->cache.num_sets = doc["S"].GetInt(); // S
-    sim->cache.b_bits = doc["b"].GetInt(); // b
+    sim->cache.num_sets = (size_t) doc["S"].GetInt(); // S
+    sim->cache.b_bits = (size_t) doc["b"].GetInt(); // b
     sim->cache.lines_per_set = doc["E"].GetInt(); // E
 
     // Check for m as a variable, if present use its value, else default to sizeof(uint32_t).
-    sim->addr_size = (doc.HasMember("m") && doc["m"].IsInt() && doc["m"].GetInt() > 0) ? doc["m"].GetInt() : sizeof(uint32_t);
+    sim->addr_size = (doc.HasMember("m") && doc["m"].IsInt() && doc["m"].GetInt() > 0) ? (size_t) doc["m"].GetInt()
+                                                                                       : sizeof(uint32_t);
 
     replacement_policy = doc["replacement"].GetString(); // Replacement policy
     sim->elem_size = sizeof(uint32_t);
@@ -78,16 +78,18 @@ Simulator* parse_input(const char* input)
         switch (data_struct["name"].GetString()[0])
         {
             case 'A':
-                sim->data_a_rows = data_struct["rows"].GetInt();
-                sim->data_a_cols = data_struct["cols"].GetInt();
+                sim->data_a_rows = (size_t) data_struct["rows"].GetInt();
+                sim->data_a_cols = (size_t) data_struct["cols"].GetInt();
                 break;
             case 'B':
-                sim->data_b_rows = data_struct["rows"].GetInt();
-                sim->data_b_cols = data_struct["cols"].GetInt();
+                sim->data_b_rows = (size_t) data_struct["rows"].GetInt();
+                sim->data_b_cols = (size_t) data_struct["cols"].GetInt();
                 break;
             case 'C':
-                sim->data_c_rows = data_struct["rows"].GetInt();
-                sim->data_c_cols = data_struct["cols"].GetInt();
+                sim->data_c_rows = (size_t) data_struct["rows"].GetInt();
+                sim->data_c_cols = (size_t) data_struct["cols"].GetInt();
+                break;
+            default:
                 break;
         }
     }
@@ -151,70 +153,23 @@ Simulator* prepare_input(const char* input)
     return sim;
 }
 
-void simulate()
-{
-    uint32_t i, j;
-    Simulator sim;
-    sim.data_a_rows = 4;
-    sim.data_a_cols = 4;
-    sim.data_b_rows = 4;
-    sim.data_b_cols = 4;
-    sim.data_c_rows = 4;
-    sim.data_c_cols = 4;
-    //sim.i_max = 4;
-    //sim.i_jump = 1;
-    //sim.j_max = 4;
-    //sim.j_jump = 1;
-    //sim.k_max = 4;
-    //sim.k_jump = 1;
-    sim.a_base_addr = 0xAAAA0000;
-    sim.b_base_addr = 0xBBBB0000;
-    sim.c_base_addr = 0xCCCC0000;
-    sim.elem_size = sizeof(uint32_t);
-    sim.cache.num_sets = 256;
-    sim.cache.lines_per_set = 1;
-    sim.cache.tag_bits = 22;
-    sim.cache.b_bits = 2;
-    sim.cache.policy = LRU;
-    sim.cache.sets = (Set*) malloc(sim.cache.num_sets * sizeof(Set));
-    for (i = 0; i < sim.cache.num_sets; i++)
-    {
-        sim.cache.sets[i].lines = (Line*) malloc(sim.cache.lines_per_set * sizeof(Line));
-        sim.cache.sets[i].line_order = new std::deque<PolicyCount>();
-        for (j = 0; j < sim.cache.lines_per_set; j++)
-        {
-            sim.cache.sets[i].lines[j].valid = false;
-            sim.cache.sets[i].lines[j].tag = 0;
-        }
-    }
-    std::cout << run_simulator(&sim) << std::endl;
-    for (i = 0; i < sim.cache.num_sets; i++)
-    {
-        delete sim.cache.sets[i].line_order;
-        free(sim.cache.sets[i].lines);
-    }
-    free(sim.cache.sets);
-}
-
 int main(int argc, char* argv[])
 {
     Simulator *sim;
+    int i;
     char *buf, nextchar;
-
-    //setbuf(stdout, NULL);
 
     buf = new char[2048];
 
-    int i = 0;
+    i = 0;
     while (scanf("%c", &nextchar) > 0) {
         buf[i] = nextchar;
-        if (nextchar == '\0')
+        if (nextchar == '\n')
             break;
         i++;
     }
         
     sim = prepare_input(buf);
-    //simulate();
     std::cout << run_simulator(sim) << std::endl;
     delete buf;
     destroy_simulator(sim);

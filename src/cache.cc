@@ -61,7 +61,6 @@ int cache_insert(Cache* cache, size_t set, uint32_t tag)
                     p_count.value = 1;
                     cache->sets[set].line_order->push_back(p_count);
                     return i;
-
                 }
             }
             else
