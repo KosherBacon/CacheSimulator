@@ -17,8 +17,6 @@ using namespace std;
 static inline bool cache_contains(Cache *cache, uint32_t tag, uint32_t set_id);
 static void calculate_cache_lines(Simulator* sim, std::stringstream* os, int first, int second, int third);
 static inline int get_index(int idx, int first, int second, int third);
-static inline uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits);
-static inline uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag_bits);
 
 // Static methods (private except for this file).
 
@@ -236,17 +234,6 @@ static inline int get_index(int idx, int first, int second, int third)
     }
 }
 
-static inline uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits)
-{
-    return ((addr << tag_bits) >> tag_bits) >> b_bits;
-}
-
-static inline uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag_bits)
-{
-    // Keeps tag_bits number of bits in the lower bits of a uint32_t.
-    return addr >> (elem_size - tag_bits);
-}
-
 // Method implementations for simulator.h.
 
 void allocate_simulator_data(Simulator* sim)
@@ -322,3 +309,13 @@ std::string run_simulator(Simulator* sim)
     return str;
 }
 
+inline uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits)
+{
+    return ((addr << tag_bits) >> tag_bits) >> b_bits;
+}
+
+inline uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag_bits)
+{
+    // Keeps tag_bits number of bits in the lower bits of a uint32_t.
+    return addr >> (elem_size - tag_bits);
+}

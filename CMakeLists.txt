@@ -3,6 +3,9 @@ project(CacheSimulator)
 
 set(CMAKE_CXX_STANDARD 11)
 
+set(SOURCE_MAIN
+    src/main.cc)
+
 set(SOURCE_FILES
     include/rapidjson/error/en.h
     include/rapidjson/error/error.h
@@ -25,7 +28,12 @@ set(SOURCE_FILES
     include/loop.h
     include/simulator.h
     src/cache.cc
-    src/main.cc
     src/simulator.cc)
 
-add_executable(CacheSimulator ${SOURCE_FILES})
+set(TEST_FILES
+    include/Catch/catch.hpp
+    tests/test_main.cc
+    tests/test_simulator.cc)
+
+add_executable(CacheSimulator ${SOURCE_MAIN} ${SOURCE_FILES})
+add_executable(tests ${SOURCE_FILES} ${TEST_FILES})
