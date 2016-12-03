@@ -89,7 +89,7 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
             }
         }
         addr = (uint32_t) (base_addr + get_index(idx1, first, second, third) * sim->elem_size);
-        tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
+        tag = tag_from_addr(addr, sim->cache.tag_bits);
         set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
         if (!cache_contains(&sim->cache, tag, set))
         {
@@ -119,7 +119,7 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
         addr = (uint32_t) (base_addr
                            + (get_index(idx1, first, second, third) * cols * sim->elem_size)
                            + (get_index(idx2, first, second, third) * sim->elem_size));
-        tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
+        tag = tag_from_addr(addr, sim->cache.tag_bits);
         set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
         if (!cache_contains(&sim->cache, tag, set))
         {
@@ -168,7 +168,7 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
                 }
             }
             addr = (uint32_t) (base_addr + get_index(idx1, first, second, third) * sim->elem_size);
-            tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
+            tag = tag_from_addr(addr, sim->cache.tag_bits);
             set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
             if (!cache_contains(&sim->cache, tag, set))
             {
@@ -198,7 +198,7 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
             addr = (uint32_t) (base_addr
                                + (get_index(idx1, first, second, third) * cols * sim->elem_size)
                                + (get_index(idx2, first, second, third) * sim->elem_size));
-            tag = tag_from_addr(sim->elem_size, addr, sim->cache.tag_bits);
+            tag = tag_from_addr(addr, sim->cache.tag_bits);
             set = set_from_addr(addr, sim->cache.b_bits, sim->cache.tag_bits);
             if (!cache_contains(&sim->cache, tag, set))
             {
@@ -314,8 +314,14 @@ uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits)
     return ((addr << tag_bits) >> tag_bits) >> b_bits;
 }
 
-uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag_bits)
+uint32_t tag_from_addr(uint32_t addr, size_t tag_bits)
 {
     // Keeps tag_bits number of bits in the lower bits of a uint32_t.
-    return addr >> (elem_size - tag_bits);
+    if (tag_bits >= 32)
+    {
+        return 0;
+    }
+    // Need the above if statement because C has undefined behavior for bit shifting
+    // the number of bits in the underlying data type or more.
+    return addr >> (32 - tag_bits);
 }

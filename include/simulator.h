@@ -45,6 +45,6 @@ void allocate_simulator_data(Simulator* sim);
 void destroy_simulator(Simulator* sim);
 std::string run_simulator(Simulator* sim);
 uint32_t set_from_addr(uint32_t addr, size_t b_bits, size_t tag_bits);
-uint32_t tag_from_addr(size_t elem_size, uint32_t addr, size_t tag_bits);
+uint32_t tag_from_addr(uint32_t addr, size_t tag_bits);
 
 #endif
