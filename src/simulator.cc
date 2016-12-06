@@ -42,14 +42,12 @@ static inline bool cache_contains(Cache *cache, uint32_t tag, uint32_t set_id)
 static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, int first, int second, int third)
 {
     int dest_line;
-    bool inserted;
     size_t cols;
     char index;
     int i, idx1, idx2, color;
     uint32_t addr, base_addr, tag, set;
     Data *lhs;
     Data *rhs;
-    inserted = false;
 
     // Handle LHS.
     lhs = &sim->lhs;
@@ -95,7 +93,6 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
         {
             dest_line = cache_insert(&sim->cache, set, tag);
             *os << set << "," << dest_line << "," << color << "," << tag << "$";
-            inserted = true;
         }
     }
     else if (lhs->num_indices == 2)
@@ -125,7 +122,6 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
         {
             dest_line = cache_insert(&sim->cache, set, tag);
             *os << set << "," << dest_line << "," << color << "," << tag << "$";
-            inserted = true;
         }
     }
 
@@ -174,7 +170,6 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
             {
                 dest_line = cache_insert(&sim->cache, set, tag);
                 *os << set << "," << dest_line << "," << color << "," << tag << "$";
-                inserted = true;
             }
         }
         else if (rhs->num_indices == 2)
@@ -204,14 +199,10 @@ static inline void calculate_cache_lines(Simulator* sim, std::stringstream* os, 
             {
                 dest_line = cache_insert(&sim->cache, set, tag);
                 *os << set << "," << dest_line << "," << color << "," << tag << "$";
-                inserted = true;
             }
         }
     }
-    if (inserted)
-    {
-        *os << "$";
-    }
+    *os << "$";
 }
 
 static inline int get_index(int idx, int first, int second, int third)
