@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 
 project(CacheSimulator)
 
-if(UNIX)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-endif()
+add_definitions(-std=c++0x)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -13,15 +11,22 @@ set(MAIN_FILE
 
 set(SOURCE_FILES
         src/Cache.cpp
-        include/Cache.h)
+        src/Set.cpp
+        include/Cache.h
+        include/Set.h include/CacheLine.h include/EvictionPolicy.h)
 add_executable(CacheSimulator ${MAIN_FILE} ${SOURCE_FILES})
 
 
 # Setup the googletest library and create a testing executable.
 set(TEST_FILES
-        tests/test_Cache.cpp)
+        tests/test_Cache.cpp tests/test_Set.cpp)
 
 add_custom_target(testTarget)
+
+if(UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0") # debug, no optimisation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage") # enabling coverage
+endif()
 
 add_subdirectory(submodules/googletest)
 enable_testing()

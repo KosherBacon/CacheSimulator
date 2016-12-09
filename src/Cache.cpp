@@ -4,6 +4,19 @@
 
 #include "../include/Cache.h"
 
+Cache::Cache::Cache(size_t numSets, size_t linesPerSet, EvictionPolicy policy) {
+    this->numSets = numSets;
+    this->linesPerSet = linesPerSet;
+    this->policy = policy;
+    for (int i = 0; i < linesPerSet; i++) {
+        this->sets.push_back(Set(linesPerSet));
+    }
+}
+
+Cache::Cache::~Cache() {
+    this->sets.clear();
+}
+
 uint32_t Cache::Cache::setFromAddr(uint32_t addr, size_t bBits, size_t tagBits) {
     if (bBits + tagBits >= 32) {
         return 0;

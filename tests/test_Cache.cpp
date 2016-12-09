@@ -60,3 +60,9 @@ TEST(tagFromAddr, nonZeroAddr11TBits) {
     size_t tagBits = 11;
     EXPECT_EQ(Cache::Cache::tagFromAddr(addr, tagBits), 0x666);
 }
+
+TEST(tagFromAddr, nonZeroAddr18TBits) {
+    uint32_t addr = 0xAAAA0018;
+    size_t tagBits = 18;
+    EXPECT_EQ(Cache::Cache::tagFromAddr(addr, tagBits), 0x2AAA8);
+}
