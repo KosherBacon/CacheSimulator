@@ -1,39 +1,33 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 2.8)
+
 project(CacheSimulator)
+
+if(UNIX)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+endif()
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_MAIN
-    src/main.cc)
+set(MAIN_FILE
+        src/main.cpp)
 
 set(SOURCE_FILES
-    include/rapidjson/error/en.h
-    include/rapidjson/error/error.h
-    include/rapidjson/internal/biginteger.h
-    include/rapidjson/internal/diyfp.h
-    include/rapidjson/internal/dtoa.h
-    include/rapidjson/internal/ieee754.h
-    include/rapidjson/internal/itoa.h
-    include/rapidjson/internal/meta.h
-    include/rapidjson/internal/pow10.h
-    include/rapidjson/internal/regex.h
-    include/rapidjson/internal/stack.h
-    include/rapidjson/internal/strfunc.h
-    include/rapidjson/internal/strtod.h
-    include/rapidjson/internal/swap.h
-    include/rapidjson/msinttypes/inttypes.h
-    include/rapidjson/msinttypes/stdint.h
-    include/cache.h
-    include/data.h
-    include/loop.h
-    include/simulator.h
-    src/cache.cc
-    src/simulator.cc)
+        src/Cache.cpp
+        include/Cache.h)
+add_executable(CacheSimulator ${MAIN_FILE} ${SOURCE_FILES})
 
+
+# Setup the googletest library and create a testing executable.
 set(TEST_FILES
-    include/Catch/catch.hpp
-    tests/test_main.cc
-    tests/test_simulator.cc)
+        tests/test_Cache.cpp)
 
-add_executable(CacheSimulator ${SOURCE_MAIN} ${SOURCE_FILES})
-add_executable(tests ${SOURCE_FILES} ${TEST_FILES})
+add_custom_target(testTarget)
+
+add_subdirectory(submodules/googletest)
+enable_testing()
+
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+
+add_executable(runUnitTests ${TEST_FILES} ${SOURCE_FILES})
+target_link_libraries(runUnitTests gtest gtest_main)
+add_dependencies(testTarget runUnitTests)

@@ -1,6 +1,3 @@
-[submodule "submodules/rapidjson"]
-	path = submodules/rapidjson
-	url = git@github.com:miloyip/rapidjson.git
-[submodule "submodules/Catch"]
-	path = submodules/Catch
-	url = git@github.com:philsquared/Catch.git
+[submodule "submodules/googletest"]
+	path = submodules/googletest
+	url = https://github.com/google/googletest.git
