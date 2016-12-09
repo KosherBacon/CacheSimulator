@@ -35,6 +35,13 @@ TEST(setFromAddr, nonZeroAddrZero2BitsZero22Bits) {
     EXPECT_EQ(Cache::Cache::setFromAddr(addr, bBits, tagBits), 0x11);
 }
 
+TEST(setFromAddr, nonZeroAddrZeroSetBits) {
+    uint32_t addr = 0xAAAA4444;
+    size_t bBits = 16;
+    size_t tagBits = 16;
+    EXPECT_EQ(Cache::Cache::setFromAddr(addr, bBits, tagBits), 0x0);
+}
+
 // tagFromAddr
 
 TEST(tagFromAddr, zeroAddrZeroTBits) {
