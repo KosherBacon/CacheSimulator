@@ -2,9 +2,11 @@
 // Created by Joshua Kahn on 12/7/16.
 //
 
+#include <cassert>
 #include "../include/Cache.h"
 
 Cache::Cache::Cache(size_t numSets, size_t linesPerSet, EvictionPolicy policy) {
+    assert(numSets > 0);
     this->numSets = numSets;
     this->linesPerSet = linesPerSet;
     this->policy = policy;
@@ -29,4 +31,8 @@ uint32_t Cache::Cache::tagFromAddr(uint32_t addr, size_t tagBits) {
         return 0;
     }
     return addr >> (32 - tagBits);
+}
+
+const Cache::Set *Cache::Cache::getSet(unsigned int setNum) const {
+    return &this->sets.at(setNum);
 }

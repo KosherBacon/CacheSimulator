@@ -7,6 +7,7 @@
 
 namespace Cache {
     enum EvictionPolicy {
+        DIRECT_MAP,
         LRU,
         LFU,
         RANDOM

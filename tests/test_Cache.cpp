@@ -5,6 +5,17 @@
 #include "../include/Cache.h"
 #include "gtest/gtest.h"
 
+
+// Cache constructor
+
+TEST(cacheConstructor, oneSetDirectMap) {
+    size_t numSets = 1;
+    size_t linesPerSet = 1;
+    Cache::EvictionPolicy policy = Cache::DIRECT_MAP;
+    Cache::Cache cache = Cache::Cache(numSets, linesPerSet, policy);
+    EXPECT_EQ(*cache.getSet(0)->getLine(0), ((Cache::CacheLine) {false, 0, 0}));
+}
+
 // setFromAddr
 
 TEST(setFromAddr, zeroAddrZeroBBitsZeroTBits) {
