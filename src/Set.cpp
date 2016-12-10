@@ -31,3 +31,12 @@ void Cache::Set::markLineValid(unsigned int lineNum) {
 bool Cache::Set::isLineValid(unsigned int lineNum) {
     return this->lines.at(lineNum).valid;
 }
+
+bool Cache::Set::contains(uint32_t tag) {
+    for (std::vector<CacheLine>::iterator it = this->lines.begin(); it < this->lines.end(); it++) {
+        if ((*it).tag == tag && (*it).valid) {
+            return true;
+        }
+    }
+    return false;
+}

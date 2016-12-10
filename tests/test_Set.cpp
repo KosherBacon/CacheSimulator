@@ -32,12 +32,16 @@ TEST(setUpdateLine, twoDifferentLinesPerSet) {
     EXPECT_EQ(*set.getLine(1), ((Cache::CacheLine) {true, 1, 2}));
 }
 
+// Set markLineValid
+
 TEST(setMarkLineValid, oneLinePerSet) {
     size_t linesPerSet = 1;
     Cache::Set set = Cache::Set(linesPerSet);
     set.markLineValid(0);
     EXPECT_TRUE((*set.getLine(0)).valid);
 }
+
+// Set isLineValid
 
 TEST(setIsLineValid, invalidLine) {
     size_t linesPerSet = 1;
@@ -50,4 +54,32 @@ TEST(setIsLineValid, validLine) {
     Cache::Set set = Cache::Set(linesPerSet);
     set.markLineValid(0);
     EXPECT_TRUE(set.isLineValid(0));
+}
+
+// Set contains
+
+TEST(setContains, containsInvalidLine) {
+    size_t linesPerSet = 1;
+    Cache::Set set = Cache::Set(linesPerSet);
+    EXPECT_FALSE(set.contains(0));
+}
+
+TEST(setContains, containsValidLine) {
+    size_t linesPerSet = 1;
+    Cache::Set set = Cache::Set(linesPerSet);
+    set.markLineValid(0);
+    EXPECT_TRUE(set.contains(0));
+}
+
+TEST(setContains, notContainsInvalidLine) {
+    size_t linesPerSet = 1;
+    Cache::Set set = Cache::Set(linesPerSet);
+    EXPECT_FALSE(set.contains(1));
+}
+
+TEST(setContains, notContainsValidLine) {
+    size_t linesPerSet = 1;
+    Cache::Set set = Cache::Set(linesPerSet);
+    set.markLineValid(0);
+    EXPECT_FALSE(set.contains(1));
 }

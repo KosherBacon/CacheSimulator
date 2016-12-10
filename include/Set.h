@@ -21,6 +21,7 @@ namespace Cache {
         void updateLine(unsigned int lineNum, uint32_t tag, uint32_t evictionData);
         void markLineValid(unsigned int lineNum);
         bool isLineValid(unsigned int lineNum);
+        bool contains(uint32_t tag);
     };
 }
 

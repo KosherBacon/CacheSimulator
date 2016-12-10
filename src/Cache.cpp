@@ -5,6 +5,8 @@
 #include <cassert>
 #include "../include/Cache.h"
 
+using Cache::Set;
+
 Cache::Cache::Cache(size_t numSets, size_t linesPerSet, EvictionPolicy policy) {
     assert(numSets > 0);
     this->numSets = numSets;
@@ -33,6 +35,10 @@ uint32_t Cache::Cache::tagFromAddr(uint32_t addr, size_t tagBits) {
     return addr >> (32 - tagBits);
 }
 
-const Cache::Set *Cache::Cache::getSet(unsigned int setNum) const {
+bool Cache::Cache::contains(uint32_t set, uint32_t tag) {
+    return this->sets.at(set).contains(tag);
+}
+
+const Set *Cache::Cache::getSet(unsigned int setNum) const {
     return &this->sets.at(setNum);
 }
