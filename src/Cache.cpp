@@ -47,3 +47,7 @@ bool Cache::Cache::contains(uint32_t tag) {
 const Set *Cache::Cache::getSet(unsigned int setNum) const {
     return &this->sets.at(setNum);
 }
+
+void Cache::Cache::markLineValid(unsigned int setNum, unsigned int lineNum) {
+    this->sets.at(setNum).markLineValid(lineNum);
+}

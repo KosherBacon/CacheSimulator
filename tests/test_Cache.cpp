@@ -94,3 +94,12 @@ TEST(cacheContains, tagInCacheAllInvalid) {
     Cache::Cache cache = Cache::Cache(numSets, linesPerSet, policy);
     EXPECT_FALSE(cache.contains(0));
 }
+
+TEST(cacheContains, tagInCacheValid) {
+    size_t numSets = 1;
+    size_t linesPerSet = 1;
+    Cache::EvictionPolicy policy = Cache::LFU;
+    Cache::Cache cache = Cache::Cache(numSets, linesPerSet, policy);
+    cache.markLineValid(0, 0);
+    EXPECT_TRUE(cache.contains(0));
+}

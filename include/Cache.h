@@ -28,6 +28,7 @@ namespace Cache {
         void insert(uint32_t addr);
         bool contains(uint32_t tag);
         const Set* getSet(unsigned int setNum) const;
+        void markLineValid(unsigned int setNum, unsigned int lineNum);
     };
 }
 
