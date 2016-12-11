@@ -84,3 +84,13 @@ TEST(tagFromAddr, nonZeroAddr18TBits) {
     size_t tagBits = 18;
     EXPECT_EQ(Cache::Cache::tagFromAddr(addr, tagBits), 0x2AAA8);
 }
+
+// Cache contains
+
+TEST(cacheContains, tagInCacheAllInvalid) {
+    size_t numSets = 1;
+    size_t linesPerSet = 1;
+    Cache::EvictionPolicy policy = Cache::LRU;
+    Cache::Cache cache = Cache::Cache(numSets, linesPerSet, policy);
+    EXPECT_FALSE(cache.contains(0));
+}

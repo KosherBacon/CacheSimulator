@@ -26,7 +26,7 @@ namespace Cache {
         static uint32_t setFromAddr(uint32_t addr, size_t bBits, size_t tagBits);
         static uint32_t tagFromAddr(uint32_t addr, size_t tagBits);
         void insert(uint32_t addr);
-        bool contains(uint32_t set, uint32_t tag);
+        bool contains(uint32_t tag);
         const Set* getSet(unsigned int setNum) const;
     };
 }

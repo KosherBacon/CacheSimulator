@@ -35,8 +35,13 @@ uint32_t Cache::Cache::tagFromAddr(uint32_t addr, size_t tagBits) {
     return addr >> (32 - tagBits);
 }
 
-bool Cache::Cache::contains(uint32_t set, uint32_t tag) {
-    return this->sets.at(set).contains(tag);
+bool Cache::Cache::contains(uint32_t tag) {
+    for (std::vector<Set>::iterator it = this->sets.begin(); it < this->sets.end(); it++) {
+        if ((*it).contains(tag)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 const Set *Cache::Cache::getSet(unsigned int setNum) const {
