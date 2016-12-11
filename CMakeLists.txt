@@ -21,6 +21,10 @@ add_executable(CacheSimulator ${MAIN_FILE} ${SOURCE_FILES})
 set(TEST_FILES
         tests/test_Cache.cpp tests/test_Set.cpp)
 
+add_custom_target(clean-coverage
+        COMMAND lcov --directory . --zerocounters -q
+        )
+
 add_custom_target(testTarget)
 
 if(UNIX)
@@ -35,4 +39,4 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 add_executable(runUnitTests ${TEST_FILES} ${SOURCE_FILES})
 target_link_libraries(runUnitTests gtest gtest_main)
-add_dependencies(testTarget runUnitTests)
+add_dependencies(testTarget runUnitTests clean-coverage)
