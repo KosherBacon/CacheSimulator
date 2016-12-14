@@ -8,7 +8,7 @@
 #include <cstdint>
 
 namespace Cache {
-    struct CacheLine {
+    typedef struct CacheLine {
         bool valid;
         uint32_t tag ;
         uint32_t evictionData;
@@ -16,7 +16,7 @@ namespace Cache {
         friend bool operator==(const CacheLine &lhs, const CacheLine &rhs) {
             return lhs.valid == rhs.valid && lhs.tag == rhs.tag && lhs.evictionData == rhs.evictionData;
         }
-    };
+    } CacheLine;
 }
 
 #endif //CACHESIMULATOR_CACHELINE_H

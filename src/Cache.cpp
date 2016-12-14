@@ -6,14 +6,17 @@
 #include "../include/Cache.h"
 
 using Cache::Set;
+using Cache::CacheInsertResult;
 
-Cache::Cache::Cache(size_t numSets, size_t linesPerSet, EvictionPolicy policy) {
+Cache::Cache::Cache(size_t numSets, size_t linesPerSet, size_t bBits, size_t tagBits, EvictionPolicy policy) {
     assert(numSets > 0);
     this->numSets = numSets;
     this->linesPerSet = linesPerSet;
+    this->bBits = bBits;
+    this->tagBits = tagBits;
     this->policy = policy;
-    for (int i = 0; i < linesPerSet; i++) {
-        this->sets.push_back(Set(linesPerSet));
+    for (int i = 0; i < numSets; i++) {
+        this->sets.push_back(Set(linesPerSet, policy));
     }
 }
 
@@ -35,16 +38,23 @@ uint32_t Cache::Cache::tagFromAddr(uint32_t addr, size_t tagBits) {
     return addr >> (32 - tagBits);
 }
 
+CacheInsertResult Cache::Cache::insert(uint32_t addr) {
+    uint32_t set = setFromAddr(addr, this->bBits, this->tagBits);
+    uint32_t tag = tagFromAddr(addr, this->tagBits);
+    int line = this->sets.at(set).insert(tag);
+    return (CacheInsertResult) {true, set, static_cast<unsigned int>(line)};
+}
+
 bool Cache::Cache::contains(uint32_t tag) {
     for (std::vector<Set>::iterator it = this->sets.begin(); it < this->sets.end(); it++) {
-        if ((*it).contains(tag)) {
+        if ((*it).contains(tag) >= 0) {
             return true;
         }
     }
     return false;
 }
 
-const Set *Cache::Cache::getSet(unsigned int setNum) const {
+Set *Cache::Cache::getSet(unsigned int setNum) {
     return &this->sets.at(setNum);
 }
 

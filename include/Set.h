@@ -6,22 +6,31 @@
 #define CACHESIMULATOR_SET_H
 
 #include <cstddef>
+#include <deque>
 #include <vector>
 #include "CacheLine.h"
+#include "EvictionPolicy.h"
 
 namespace Cache {
     class Set {
     private:
         size_t numLines;
+        Cache::EvictionPolicy policy;
         std::vector<CacheLine> lines;
+        // Used for keeping track of lines and which ones we are going to eject.
+        std::deque<unsigned int> usedLines;
+        int usedLinesCount;
+        int firstEmptyLine();
     public:
-        Set(size_t linesPerSet);
+        Set(size_t linesPerSet, EvictionPolicy policy);
         ~Set();
-        const struct CacheLine* getLine(unsigned int lineNum) const;
+        CacheLine * getLine(unsigned int lineNum);
         void updateLine(unsigned int lineNum, uint32_t tag, uint32_t evictionData);
         void markLineValid(unsigned int lineNum);
         bool isLineValid(unsigned int lineNum);
-        bool contains(uint32_t tag);
+        int contains(uint32_t tag);
+        std::deque<unsigned int> getUsedLines();
+        int insert(uint32_t tag);
     };
 }
 

@@ -13,7 +13,10 @@ set(SOURCE_FILES
         src/Cache.cpp
         src/Set.cpp
         include/Cache.h
-        include/Set.h include/CacheLine.h include/EvictionPolicy.h)
+        include/Set.h
+        include/CacheLine.h
+        include/EvictionPolicy.h
+        include/CacheInsertResult.h)
 add_executable(CacheSimulator ${MAIN_FILE} ${SOURCE_FILES})
 
 
