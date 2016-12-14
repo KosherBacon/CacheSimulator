@@ -15,9 +15,7 @@ Cache::Cache::Cache(size_t numSets, size_t linesPerSet, size_t bBits, size_t tag
     this->bBits = bBits;
     this->tagBits = tagBits;
     this->policy = policy;
-    for (int i = 0; i < numSets; i++) {
-        this->sets.push_back(Set(linesPerSet, policy));
-    }
+    this->sets.resize(numSets, Set(linesPerSet, policy));
 }
 
 Cache::Cache::~Cache() {
