@@ -7,14 +7,14 @@
 #include "../include/Cache.h"
 
 using Cache::CacheLine;
+using Cache::SetInsertResult;
 
 Cache::Set::Set(size_t linesPerSet, EvictionPolicy policy) {
     assert(linesPerSet != 0); // You cannot have zero lines in a set.
     this->numLines = linesPerSet;
     this->policy = policy;
     this->lines.resize(linesPerSet, (CacheLine) {false, 0, 0});
-    this->usedLines.resize(linesPerSet);
-    this->usedLinesCount = 0;
+    this->usedLines.resize(0);
 }
 
 Cache::Set::~Set() {
@@ -32,8 +32,18 @@ int Cache::Set::firstEmptyLine() {
     return -1;
 }
 
+bool Cache::Set::LFU_compare(CacheLine *l1, CacheLine *l2) {
+    return l1->evictionData > l2->evictionData;
+}
+
 CacheLine * Cache::Set::getLine(unsigned int lineNum) {
     return &this->lines.at(lineNum);
+}
+
+void Cache::Set::updateLine(CacheLine *line, uint32_t tag, uint32_t evictionData) {
+    line->tag = tag;
+    line->evictionData = evictionData;
+    line->valid = true;
 }
 
 void Cache::Set::updateLine(unsigned int lineNum, uint32_t tag, uint32_t evictionData) {
@@ -60,29 +70,40 @@ int Cache::Set::contains(uint32_t tag) {
     return -1;
 }
 
-std::deque<unsigned int> Cache::Set::getUsedLines() {
-    return this->usedLines;
-}
-
-int Cache::Set::insert(uint32_t tag) {
+SetInsertResult Cache::Set::insert(uint32_t tag) {
     // Double check if specified set already contains the tag.
+    SetInsertResult insertResult = {.couldInsert=false, .lineNum=0};
     int lineNum = this->contains(tag);
     if (lineNum < 0) {
         if (this->policy == LRU) {
-            if (this->usedLinesCount == this->numLines) {
-                unsigned int lineToInsert = this->usedLines.back();
+            // Check if set is full or not.
+            if (this->usedLines.size() == this->numLines) { // Set is full.
+                CacheLine *lineToInsert = this->usedLines.back();
+                unsigned int linePos = (unsigned int) this->usedLines.size() - 1;
                 this->updateLine(lineToInsert, tag, 0);
                 this->usedLines.pop_back();
                 this->usedLines.push_front(lineToInsert);
-                return lineToInsert;
+                insertResult.couldInsert = true;
+                insertResult.lineNum = linePos;
+                return insertResult;
             } else {
-                unsigned int lineToInsert = (unsigned int) this->firstEmptyLine();
+                unsigned int linePos = (unsigned int) this->firstEmptyLine();
+                CacheLine *lineToInsert = &this->lines.at(linePos);
                 this->updateLine(lineToInsert, tag, 0);
                 this->usedLines.push_front(lineToInsert);
-                this->usedLinesCount++;
-                return lineToInsert;
+                insertResult.couldInsert = true;
+                insertResult.lineNum = linePos;
+                return insertResult;
+            }
+        } else if (this->policy == LFU) {
+            // Check if set is full or not.
+            if (this->usedLines.size() == this->numLines) { // Set is full.
+                // Ensure that the used line dequeue is sorted by each line's eviction data.
+                std::sort(this->usedLines.begin(), this->usedLines.end(), LFU_compare);
+                //unsigned int lineToInsert = this->usedLines.back();
+            } else {
             }
         }
     }
-    return -1; // TODO - Change this.
+    return insertResult; // TODO - Change this.
 }

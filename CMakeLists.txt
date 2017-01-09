@@ -16,7 +16,7 @@ set(SOURCE_FILES
         include/Set.h
         include/CacheLine.h
         include/EvictionPolicy.h
-        include/CacheInsertResult.h)
+        include/CacheInsertResult.h src/Simulator.cpp include/Simulator.h include/SetInsertResult.h)
 add_executable(CacheSimulator ${MAIN_FILE} ${SOURCE_FILES})
 
 

@@ -4,9 +4,11 @@
 
 #include <cassert>
 #include "../include/Cache.h"
+#include "../include/SetInsertResult.h"
 
 using Cache::Set;
 using Cache::CacheInsertResult;
+using Cache::SetInsertResult;
 
 Cache::Cache::Cache(size_t numSets, size_t linesPerSet, size_t bBits, size_t tagBits, EvictionPolicy policy) {
     assert(numSets > 0);
@@ -39,8 +41,8 @@ uint32_t Cache::Cache::tagFromAddr(uint32_t addr, size_t tagBits) {
 CacheInsertResult Cache::Cache::insert(uint32_t addr) {
     uint32_t set = setFromAddr(addr, this->bBits, this->tagBits);
     uint32_t tag = tagFromAddr(addr, this->tagBits);
-    int line = this->sets.at(set).insert(tag);
-    return (CacheInsertResult) {true, set, static_cast<unsigned int>(line)};
+    SetInsertResult insertResult = this->sets.at(set).insert(tag);
+    return (CacheInsertResult) {.couldInsert=insertResult.couldInsert, .setNum=set, .lineNum=insertResult.lineNum};
 }
 
 bool Cache::Cache::contains(uint32_t tag) {
