@@ -10,7 +10,7 @@
 namespace Cache {
     typedef struct CacheLine {
         bool valid;
-        uint32_t tag ;
+        uint32_t tag;
         uint32_t evictionData;
 
         friend bool operator==(const CacheLine &lhs, const CacheLine &rhs) {

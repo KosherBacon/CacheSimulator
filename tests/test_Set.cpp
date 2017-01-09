@@ -2,9 +2,9 @@
 // Created by Joshua Kahn on 12/9/16.
 //
 
+#include "gtest/gtest.h"
 #include "../include/EvictionPolicy.h"
 #include "../include/Set.h"
-#include "gtest/gtest.h"
 
 // Set constructor.
 
