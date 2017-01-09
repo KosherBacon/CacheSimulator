@@ -33,7 +33,7 @@ int Cache::Set::firstEmptyLine() {
 }
 
 bool Cache::Set::LFU_compare(CacheLine *l1, CacheLine *l2) {
-    return l1->evictionData > l2->evictionData;
+    return l1->evictionData >= l2->evictionData;
 }
 
 CacheLine * Cache::Set::getLine(unsigned int lineNum) {

@@ -33,6 +33,26 @@ TEST(setUpdateLine, twoDifferentLinesPerSet) {
     EXPECT_EQ(*set.getLine(1), ((Cache::CacheLine) {true, 1, 2}));
 }
 
+// Set LFU_Compare
+
+TEST(setLFUCompare, firstLineMoreFrequentlyUsed) {
+    Cache::CacheLine cl1 = {.valid=true, .tag=0xAAAAAAAA, .evictionData=2};
+    Cache::CacheLine cl2 = {.valid=true, .tag=0xBBBBBBBB, .evictionData=1};
+    EXPECT_TRUE(Cache::Set::LFU_compare(&cl1, &cl2));
+}
+
+TEST(setLFUCompare, secondLineMoreFrequentlyUsed) {
+    Cache::CacheLine cl1 = {.valid=true, .tag=0xAAAAAAAA, .evictionData=1};
+    Cache::CacheLine cl2 = {.valid=true, .tag=0xBBBBBBBB, .evictionData=2};
+    EXPECT_FALSE(Cache::Set::LFU_compare(&cl1, &cl2));
+}
+
+TEST(setLFUCompare, bothLinesEqualFrequentlyUsed) {
+    Cache::CacheLine cl1 = {.valid=true, .tag=0xAAAAAAAA, .evictionData=1};
+    Cache::CacheLine cl2 = {.valid=true, .tag=0xBBBBBBBB, .evictionData=1};
+    EXPECT_TRUE(Cache::Set::LFU_compare(&cl1, &cl2));
+}
+
 // Set markLineValid
 
 TEST(setMarkLineValid, oneLinePerSet) {
