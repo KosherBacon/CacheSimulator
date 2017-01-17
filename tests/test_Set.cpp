@@ -54,6 +54,19 @@ TEST(setLFUCompare, bothLinesEqualFrequentlyUsed) {
     EXPECT_TRUE(Cache::Set::LFU_compare(&cl1, &cl2));
 }
 
+// Set incrementLFU
+
+TEST(setIncrementLFU, basicIncrementLFU) {
+    size_t linesPerSet = 1;
+    uint32_t tag = 0xAAAAAAAA;
+    auto set = Cache::Set(linesPerSet, Cache::LFU);
+    set.insert(tag);
+    auto line = set.getLine(0);
+    EXPECT_EQ(line->evictionData, 1);
+    set.incrementLFU(0);
+    EXPECT_EQ(line->evictionData, 2);
+}
+
 // Set markLineValid
 
 TEST(setMarkLineValid, oneLinePerSet) {

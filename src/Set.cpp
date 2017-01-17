@@ -36,6 +36,10 @@ bool Cache::Set::LFU_compare(CacheLine *l1, CacheLine *l2) {
     return l1->evictionData >= l2->evictionData;
 }
 
+void Cache::Set::incrementLFU(unsigned int lineNum) {
+    this->lines.at(lineNum).evictionData++;
+}
+
 CacheLine * Cache::Set::getLine(unsigned int lineNum) {
     return &this->lines.at(lineNum);
 }

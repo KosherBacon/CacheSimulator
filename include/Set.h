@@ -24,6 +24,7 @@ namespace Cache {
     public:
         ~Set();
         static bool LFU_compare(CacheLine *l1, CacheLine *l2);
+        void incrementLFU(unsigned int lineNum);
         CacheLine * getLine(unsigned int lineNum);
         void updateLine(unsigned int lineNum, uint32_t tag, uint32_t evictionData);
         void updateLine(CacheLine *line, uint32_t tag, uint32_t evictionData);
