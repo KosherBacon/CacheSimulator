@@ -16,14 +16,13 @@ set(SOURCE_FILES
         include/Cache.h
         include/Set.h
         include/CacheLine.h
+        include/DataStructure.h
         include/EvictionPolicy.h
         include/CacheInsertResult.h
         include/Simulator.h
         include/SetInsertResult.h)
 add_executable(CacheSimulator ${MAIN_FILE} ${SOURCE_FILES})
 
-
-# Setup the googletest library and create a testing executable.
 set(TEST_FILES
         tests/test_Cache.cpp
         tests/test_Set.cpp
@@ -40,11 +39,14 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage") # enabling coverage
 endif()
 
+# Add rapidjson library.
+include_directories(submodules/rapidjson/include submodules/rapidjson)
+
+# Setup the googletest library and create a testing executable.
 add_subdirectory(submodules/googletest)
 enable_testing()
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
 add_executable(runUnitTests ${TEST_FILES} ${SOURCE_FILES})
 target_link_libraries(runUnitTests gtest gtest_main)
 add_dependencies(testTarget runUnitTests clean-coverage)

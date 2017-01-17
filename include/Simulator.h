@@ -5,18 +5,16 @@
 #ifndef CACHESIMULATOR_SIMULATOR_H
 #define CACHESIMULATOR_SIMULATOR_H
 
+#include <map>
+#include <rapidjson/document.h>
 #include "Cache.h"
-#include "EvictionPolicy.h"
+#include "DataStructure.h"
 
 namespace Cache {
     class Simulator {
     private:
         Cache *cache;
-        size_t bBits;
-        size_t tagBits;
-        size_t numSets;
-        size_t linesPerSet;
-        EvictionPolicy evictionPolicy;
+        std::map<char, DataStructure> dataStructures;
     public:
         Simulator(const char* input);
         ~Simulator();
