@@ -46,7 +46,7 @@ CacheInsertResult Cache::Cache::insert(uint32_t addr) {
 }
 
 bool Cache::Cache::contains(uint32_t tag) {
-    for (std::vector<Set>::iterator it = this->sets.begin(); it < this->sets.end(); it++) {
+    for (auto it = this->sets.begin(); it < this->sets.end(); it++) {
         if ((*it).contains(tag) >= 0) {
             return true;
         }

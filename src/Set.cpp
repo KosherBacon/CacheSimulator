@@ -24,7 +24,7 @@ Cache::Set::~Set() {
 
 int Cache::Set::firstEmptyLine() {
     int i = 0;
-    for (std::vector<CacheLine>::iterator it = this->lines.begin(); it < this->lines.end(); it++, i++) {
+    for (auto it = this->lines.begin(); it < this->lines.end(); it++, i++) {
         if (!(*it).valid) {
             return i;
         }
@@ -62,7 +62,7 @@ bool Cache::Set::isLineValid(unsigned int lineNum) {
 
 int Cache::Set::contains(uint32_t tag) {
     int i = 0;
-    for (std::vector<CacheLine>::iterator it = this->lines.begin(); it < this->lines.end(); it++, i++) {
+    for (auto it = this->lines.begin(); it < this->lines.end(); it++, i++) {
         if ((*it).tag == tag && (*it).valid) {
             return i;
         }
@@ -72,14 +72,15 @@ int Cache::Set::contains(uint32_t tag) {
 
 SetInsertResult Cache::Set::insert(uint32_t tag) {
     // Double check if specified set already contains the tag.
+    // However, insert should not be called if we know the cache already contains the tag.
     SetInsertResult insertResult = {.couldInsert=false, .lineNum=0};
     int lineNum = this->contains(tag);
     if (lineNum < 0) {
         if (this->policy == LRU) {
             // Check if set is full or not.
             if (this->usedLines.size() == this->numLines) { // Set is full.
-                CacheLine *lineToInsert = this->usedLines.back();
-                unsigned int linePos = (unsigned int) this->usedLines.size() - 1;
+                auto lineToInsert = this->usedLines.back();
+                auto linePos = (unsigned int) this->usedLines.size() - 1;
                 this->updateLine(lineToInsert, tag, 0);
                 this->usedLines.pop_back();
                 this->usedLines.push_front(lineToInsert);
@@ -87,8 +88,8 @@ SetInsertResult Cache::Set::insert(uint32_t tag) {
                 insertResult.lineNum = linePos;
                 return insertResult;
             } else {
-                unsigned int linePos = (unsigned int) this->firstEmptyLine();
-                CacheLine *lineToInsert = &this->lines.at(linePos);
+                auto linePos = (unsigned int) this->firstEmptyLine();
+                auto lineToInsert = &this->lines.at(linePos);
                 this->updateLine(lineToInsert, tag, 0);
                 this->usedLines.push_front(lineToInsert);
                 insertResult.couldInsert = true;
@@ -100,8 +101,22 @@ SetInsertResult Cache::Set::insert(uint32_t tag) {
             if (this->usedLines.size() == this->numLines) { // Set is full.
                 // Ensure that the used line dequeue is sorted by each line's eviction data.
                 std::sort(this->usedLines.begin(), this->usedLines.end(), LFU_compare);
-                //unsigned int lineToInsert = this->usedLines.back();
+                auto lineToInsert = this->usedLines.back();
+                auto linePos = (unsigned int) this->usedLines.size() - 1;
+                this->updateLine(lineToInsert, tag, 1);
+                this->usedLines.pop_back();
+                this->usedLines.push_front(lineToInsert);
+                insertResult.couldInsert = true;
+                insertResult.lineNum = linePos;
+                return insertResult;
             } else {
+                auto linePos = (unsigned int) this->firstEmptyLine();
+                auto lineToInsert = &this->lines.at(linePos);
+                this->updateLine(lineToInsert, tag, 1);
+                this->usedLines.push_front(lineToInsert);
+                insertResult.couldInsert = true;
+                insertResult.lineNum = linePos;
+                return insertResult;
             }
         }
     }

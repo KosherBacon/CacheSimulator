@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "../include/EvictionPolicy.h"
 #include "../include/Set.h"
+#include "../include/SetInsertResult.h"
 
 // Set constructor.
 
@@ -103,4 +104,33 @@ TEST(setContains, notContainsValidLine) {
     Cache::Set set = Cache::Set(linesPerSet, Cache::LRU);
     set.markLineValid(0);
     EXPECT_EQ(set.contains(1), -1);
+}
+
+// Set insert (LRU)
+
+// Set insert (LFU)
+
+TEST(setInsert, insertEmptyLFU) {
+    size_t linesPerSet = 1;
+    uint32_t tag = 0xAAAAAAAA;
+    auto set = Cache::Set(linesPerSet, Cache::LFU);
+    Cache::SetInsertResult result = set.insert(tag);
+    EXPECT_TRUE(result.couldInsert);
+    EXPECT_EQ(result.lineNum, 0);
+    EXPECT_EQ(set.getLine(0)->evictionData, 1);
+}
+
+TEST(setInsert, insertFullLFU) {
+    size_t linesPerSet = 1;
+    uint32_t tag1 = 0xAAAAAAAA;
+    uint32_t tag2 = 0xBBBBBBBB;
+    auto set = Cache::Set(linesPerSet, Cache::LFU);
+    Cache::SetInsertResult result = set.insert(tag1);
+    EXPECT_TRUE(result.couldInsert);
+    EXPECT_EQ(result.lineNum, 0);
+    EXPECT_EQ(set.getLine(0)->evictionData, 1);
+    result = set.insert(tag2);
+    EXPECT_TRUE(result.couldInsert);
+    EXPECT_EQ(result.lineNum, 0);
+    EXPECT_EQ(set.getLine(0)->evictionData, 1);
 }
