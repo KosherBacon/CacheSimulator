@@ -20,13 +20,15 @@ set(SOURCE_FILES
         include/EvictionPolicy.h
         include/CacheInsertResult.h
         include/Simulator.h
+        include/SimulatorError.h
         include/SetInsertResult.h)
 add_executable(CacheSimulator ${MAIN_FILE} ${SOURCE_FILES})
 
 set(TEST_FILES
         tests/test_Cache.cpp
         tests/test_Set.cpp
-        tests/test_CacheLine.cpp)
+        tests/test_CacheLine.cpp
+        tests/test_Simulator.cpp)
 
 add_custom_target(clean-coverage
         COMMAND lcov --directory . --zerocounters -q
