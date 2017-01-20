@@ -101,6 +101,12 @@ Cache::Simulator::Simulator(const std::string& input) {
         Loop loopStruct = {.step=step, .limit=limit};
         this->loops[idx] = loopStruct;
     }
+
+    if (!doc.HasMember("computation") || !doc["computation"].IsObject()) {
+        throw std::invalid_argument("Missing or invalid parameter: loops.");
+    }
+
+    const rapidjson::Value& computation = doc["computation"];
 }
 
 Cache::Simulator::~Simulator() {
