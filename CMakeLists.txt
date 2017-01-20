@@ -21,7 +21,7 @@ set(SOURCE_FILES
         include/CacheInsertResult.h
         include/Simulator.h
         include/SimulatorError.h
-        include/SetInsertResult.h)
+        include/SetInsertResult.h include/Loop.h)
 add_executable(CacheSimulator ${MAIN_FILE} ${SOURCE_FILES})
 
 set(TEST_FILES

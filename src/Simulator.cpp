@@ -5,14 +5,15 @@
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
+#include <string>
 #include "../include/Simulator.h"
 #include "rapidjson/document.h"
 
 #define ADDR_SIZE 32
 
-Cache::Simulator::Simulator(const char& input) {
+Cache::Simulator::Simulator(const std::string& input) {
     rapidjson::Document doc;
-    doc.Parse(&input);
+    doc.Parse(input.c_str());
 
     if (doc.HasParseError()) {
         // TODO - Return error message.
@@ -60,7 +61,7 @@ Cache::Simulator::Simulator(const char& input) {
     for (rapidjson::SizeType i = 0; i < data.Size(); i++) {
         const rapidjson::Value& dataStruct = data[i];
         if ((!dataStruct.HasMember("name") || !dataStruct["name"].IsString() ||
-                dataStruct["name"].GetStringLength() == 0)
+                dataStruct["name"].GetStringLength() != 1)
             || (!dataStruct.HasMember("rows") || !dataStruct["rows"].IsInt() || dataStruct["rows"].GetInt() <= 0)
             || (!dataStruct.HasMember("cols") || !dataStruct["cols"].IsInt() || dataStruct["cols"].GetInt() <= 0)
             || (!dataStruct.HasMember("base") || !dataStruct["base"].IsInt64() || dataStruct["base"].GetInt64() < 0)) {
@@ -71,6 +72,9 @@ Cache::Simulator::Simulator(const char& input) {
         size_t rows = (size_t) dataStruct["rows"].GetInt();
         size_t cols = (size_t) dataStruct["cols"].GetInt();
         uint32_t base = (uint32_t) dataStruct["base"].GetInt64();
+        if (this->dataStructures.find(name) != this->dataStructures.end()) {
+            throw std::invalid_argument("Duplicate name entries in parameter: data.");
+        }
         DataStructure ds = {.baseAddr=base, .rows=rows, .cols = cols};
         this->dataStructures[name] = ds;
     }
@@ -88,6 +92,14 @@ Cache::Simulator::Simulator(const char& input) {
             || (!loop.HasMember("limit") || !loop["limit"].IsInt() || loop["limit"].GetInt() <= 0)) {
             throw std::invalid_argument("Missing or invalid parameters: idx, step, limit.");
         }
+        const char idx = loop["idx"].GetString()[0];
+        size_t step = (size_t) loop["step"].GetInt();
+        size_t limit = (size_t) loop["limit"].GetInt();
+        if (this->loops.find(idx) != this->loops.end()) {
+            throw std::invalid_argument("Duplicate idx entries in parameter: loops.");
+        }
+        Loop loopStruct = {.step=step, .limit=limit};
+        this->loops[idx] = loopStruct;
     }
 }
 
