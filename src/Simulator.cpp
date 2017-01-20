@@ -74,6 +74,21 @@ Cache::Simulator::Simulator(const char& input) {
         DataStructure ds = {.baseAddr=base, .rows=rows, .cols = cols};
         this->dataStructures[name] = ds;
     }
+
+    if (!doc.HasMember("loops") || !doc["loops"].IsArray()) {
+        // TODO - Return error message.
+        throw std::invalid_argument("Missing or invalid parameter: loops.");
+    }
+
+    const rapidjson::Value& loops = doc["loops"];
+    for (rapidjson::SizeType i = 0; i < data.Size(); i++) {
+        const rapidjson::Value& loop = loops[i];
+        if ((!loop.HasMember("idx") || !loop["idx"].IsString() || loop["idx"].GetStringLength() != 1)
+            || (!loop.HasMember("step") || !loop["step"].IsInt() || loop["step"].GetInt() <= 0)
+            || (!loop.HasMember("limit") || !loop["limit"].IsInt() || loop["limit"].GetInt() <= 0)) {
+            throw std::invalid_argument("Missing or invalid parameters: idx, step, limit.");
+        }
+    }
 }
 
 Cache::Simulator::~Simulator() {
