@@ -103,7 +103,7 @@ Cache::Simulator::Simulator(const std::string& input) {
     }
 
     if (!doc.HasMember("computation") || !doc["computation"].IsObject()) {
-        throw std::invalid_argument("Missing or invalid parameter: loops.");
+        throw std::invalid_argument("Missing or invalid parameter: computation.");
     }
 
     const rapidjson::Value& computation = doc["computation"];
