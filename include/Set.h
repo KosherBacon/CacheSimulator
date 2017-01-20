@@ -20,9 +20,9 @@ namespace Cache {
         std::vector<CacheLine> lines;
         // Used for keeping track of lines and which ones we are going to eject.
         std::deque<CacheLine*> usedLines;
-        int firstEmptyLine();
     public:
         ~Set();
+        int firstEmptyLine();
         static bool LFU_compare(CacheLine *l1, CacheLine *l2);
         void incrementLFU(unsigned int lineNum);
         CacheLine * getLine(unsigned int lineNum);

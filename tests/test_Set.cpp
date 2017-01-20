@@ -34,6 +34,15 @@ TEST(setUpdateLine, twoDifferentLinesPerSet) {
     EXPECT_EQ(*set.getLine(1), ((Cache::CacheLine) {true, 1, 2}));
 }
 
+// Set firstEmptyLine
+
+TEST(setFirstEmptyLine, noEmptyLines) {
+    size_t linesPerSet = 1;
+    Cache::Set set = Cache::Set(linesPerSet, Cache::LRU);
+    set.updateLine((unsigned int) 0, 1, 1); // Removes ambiguity.
+    EXPECT_EQ(set.firstEmptyLine(), -1);
+}
+
 // Set LFU_Compare
 
 TEST(setLFUCompare, firstLineMoreFrequentlyUsed) {
