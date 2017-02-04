@@ -25,3 +25,8 @@ test:
 	$(CXX) $(CXXFLAGS) $(INCLUDES) ./obj/test.o ./obj/cache_simulator.o -o \
 		./bin/$(TEST_MAIN) $(LXXFLAGS) $(LIBS)
 	cd ./bin && ./CacheSimulatorTest
+
+clean:
+	rm ./obj/*.o
+	rm  bin/*
+	rm ./lib/*
