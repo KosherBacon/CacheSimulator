@@ -20,7 +20,7 @@ NO_MAIN = cache_sim_no_main.o
 all: $(MAIN)
 
 $(MAIN): $(OBJS_MAIN)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o ../bin/$(MAIN) $(OBJS_MAIN)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o ../bin/$(MAIN) $(OBJS_MAIN_PATH)
 
 cache_simulator.o: $(OBJS)
 	$(LD) -r $(OBJS_PATH) -o ../obj/cache_simulator.o

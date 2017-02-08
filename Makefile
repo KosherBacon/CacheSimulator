@@ -10,9 +10,8 @@ GMOCK_DIR = ./submodules/googletest/googlemock/make
 
 TEST_MAIN = CacheSimulatorTest
 
-all:
-
-main:
+default:
+	$(MAKE) -C ./src CacheSimulator
 
 googlemock:
 	$(MAKE) -C $(GMOCK_DIR) gmock_main.a
