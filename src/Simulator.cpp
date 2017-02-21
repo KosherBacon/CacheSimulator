@@ -85,7 +85,8 @@ Cache::Simulator::Simulator(const std::string& input) {
     }
 
     const rapidjson::Value& loops = doc["loops"];
-    for (rapidjson::SizeType i = 0; i < data.Size(); i++) {
+    int loopsSize = loops.Size();
+    for (int i = 0; i < loopsSize; i++) {
         const rapidjson::Value& loop = loops[i];
         if ((!loop.HasMember("idx") || !loop["idx"].IsString() || loop["idx"].GetStringLength() != 1)
             || (!loop.HasMember("step") || !loop["step"].IsInt() || loop["step"].GetInt() <= 0)
@@ -107,9 +108,37 @@ Cache::Simulator::Simulator(const std::string& input) {
     }
 
     const rapidjson::Value& computation = doc["computation"];
+    if (!computation.HasMember("LHS") || !computation["LHS"].IsString() || computation["LHS"].GetStringLength() != 1
+            || !computation.HasMember("RHS") || !computation["RHS"].IsArray()) {
+        throw std::invalid_argument("Missing or invalid parameters: LHS, RHS.");
+    }
+    const rapidjson::Value& lhs = computation["LHS"];
+    const char lhsStructure = lhs.GetString()[0];
+    if (this->dataStructures.find(lhsStructure) == this->dataStructures.end()) {
+        // The lhs data structure wasn't previously defined.
+        throw std::invalid_argument("Data structure in LHS was not previously defined.");
+    }
+    this->lhs = lhsStructure; // Actually set the lhs structure after checking the input format.
+
+    const rapidjson::Value& rhs = computation["RHS"];
+    int rhsSize = rhs.GetArray().Size();
+    this->rhs = new char[rhsSize];
+    for (int i = 0; i < rhsSize; i++) {
+        if (!rhs[i].IsString() || rhs[i].GetStringLength() != 1) {
+            // Error out that the data input is of the wrong type.
+            throw std::invalid_argument("Malformed entry in RHS, expecting strings of length 1.");
+        }
+        const char rhsStructure = rhs[i].GetString()[0];
+        if (this->dataStructures.find(rhsStructure) == this->dataStructures.end()) {
+            // The rhs data structure wasn't previously defined.
+            throw std::invalid_argument("Data structure in RHS was not previously defined.");
+        }
+        this->rhs[i] = rhsStructure;
+    }
 }
 
 Cache::Simulator::~Simulator() {
     delete this->cache;
     this->dataStructures.clear();
+    delete this->rhs;
 }

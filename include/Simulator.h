@@ -17,6 +17,8 @@ namespace Cache {
         Cache *cache;
         std::map<char, DataStructure> dataStructures;
         std::map<char, Loop> loops;
+        char lhs;
+        char *rhs;
     public:
         Simulator(const std::string& input);
         ~Simulator();
