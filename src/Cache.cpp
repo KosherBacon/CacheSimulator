@@ -42,7 +42,7 @@ CacheInsertResult Cache::Cache::insert(uint32_t addr) {
     uint32_t set = setFromAddr(addr, this->bBits, this->tagBits);
     uint32_t tag = tagFromAddr(addr, this->tagBits);
     SetInsertResult insertResult = this->sets.at(set).insert(tag);
-    return (CacheInsertResult) {.couldInsert=insertResult.couldInsert, .setNum=set, .lineNum=insertResult.lineNum};
+    return (CacheInsertResult) {insertResult.couldInsert, set, insertResult.lineNum};
 }
 
 bool Cache::Cache::contains(uint32_t tag) {
