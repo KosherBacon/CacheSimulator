@@ -22,6 +22,7 @@ namespace Cache {
     public:
         Simulator(const std::string& input);
         ~Simulator();
+        void simulate();
     };
 }
 

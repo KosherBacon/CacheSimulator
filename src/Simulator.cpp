@@ -142,3 +142,7 @@ Cache::Simulator::~Simulator() {
     this->dataStructures.clear();
     delete this->rhs;
 }
+
+void Cache::Simulator::simulate() {
+    
+}
