@@ -9,8 +9,13 @@
 
 namespace Cache {
     typedef struct Loop {
+        char index;
         size_t step;
         size_t limit;
+
+        friend bool operator==(const Loop& l1, const Loop& l2) {
+            return l1.index == l2.index;
+        }
     } Loop;
 }
 

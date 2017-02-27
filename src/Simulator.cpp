@@ -6,6 +6,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <sstream>
 #include "../include/Simulator.h"
 #include "rapidjson/document.h"
 
@@ -96,11 +97,11 @@ Cache::Simulator::Simulator(const std::string& input) {
         const char idx = loop["idx"].GetString()[0];
         size_t step = (size_t) loop["step"].GetInt();
         size_t limit = (size_t) loop["limit"].GetInt();
-        if (this->loops.find(idx) != this->loops.end()) {
+        Loop loopStruct = {idx, step, limit};
+        if (std::find(this->loops.begin(), this->loops.end(), loopStruct) != this->loops.end()) {
             throw std::invalid_argument("Duplicate idx entries in parameter: loops.");
         }
-        Loop loopStruct = {.step=step, .limit=limit};
-        this->loops[idx] = loopStruct;
+        this->loops.push_back(loopStruct);
     }
 
     if (!doc.HasMember("computation") || !doc["computation"].IsObject()) {
@@ -122,7 +123,8 @@ Cache::Simulator::Simulator(const std::string& input) {
 
     const rapidjson::Value& rhs = computation["RHS"];
     int rhsSize = rhs.GetArray().Size();
-    this->rhs = new char[rhsSize];
+    this->rhsSize = rhsSize;
+    this->rhs = new char[this->rhsSize];
     for (int i = 0; i < rhsSize; i++) {
         if (!rhs[i].IsString() || rhs[i].GetStringLength() != 1) {
             // Error out that the data input is of the wrong type.
@@ -143,6 +145,61 @@ Cache::Simulator::~Simulator() {
     delete this->rhs;
 }
 
+void Cache::Simulator::calculateCacheLines(std::stringstream* os) {
+    // Handle RHS.
+    for (int i = 0; i < this->rhsSize; i++) {
+        uint32_t baseAddr = this->dataStructures[this->rhs[i]].baseAddr;
+        int color = 1; // Default to color = 1.
+        switch (this->rhs[i]) {
+            case 'A':
+                color = 1;
+                break;
+            case 'B':
+                color = 2;
+                break;
+            case 'C':
+                color = 3;
+                break;
+            default: // We should never have to go here.
+                break;
+        }
+    }
+
+    // Handle LHS.
+    uint32_t baseAddr = this->dataStructures[this->lhs].baseAddr;
+    int color = 1; // Default to color = 1.
+    switch (this->lhs) {
+        case 'A':
+            color = 1;
+            break;
+        case 'B':
+            color = 2;
+            break;
+        case 'C':
+            color = 3;
+            break;
+        default: // We should never have to go here.
+            break;
+    }
+}
+
+void Cache::Simulator::loopHelper(std::stringstream* os, int* indices, int level) {
+    if (level == 0) {
+        this->calculateCacheLines(os);
+    } else {
+        indices[level - 1] = 0;
+        for (indices[level - 1] = 0;
+             indices[level - 1] < this->loops[level - 1].limit;
+             indices[level - 1] += this->loops[level - 1].step) {
+            this->loopHelper(os, indices, level - 1);
+        }
+    }
+}
+
 void Cache::Simulator::simulate() {
-    
+    std::stringstream outputStream;
+    // Allocate enough for our loop indices. Assume that they are ordered i, j, k.
+    // e.g. if there are only two loops, then these are i, j.
+    int *indices = (int*) calloc(this->loops.size(), sizeof(int));
+    this->loopHelper(&outputStream, indices, 0);
 }

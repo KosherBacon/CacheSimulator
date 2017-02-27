@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include <sstream>
 #include "Cache.h"
 #include "DataStructure.h"
 #include "Loop.h"
@@ -16,9 +17,12 @@ namespace Cache {
     private:
         Cache *cache;
         std::map<char, DataStructure> dataStructures;
-        std::map<char, Loop> loops;
+        std::vector<Loop> loops;
         char lhs;
         char *rhs;
+        int rhsSize;
+        void calculateCacheLines(std::stringstream* os);
+        void loopHelper(std::stringstream* os, int* indices, int level);
     public:
         Simulator(const std::string& input);
         ~Simulator();
